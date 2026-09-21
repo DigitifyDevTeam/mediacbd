@@ -1,7 +1,7 @@
 import { Menu, Search, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { NAV_LINKS, SITE } from '../../data/site'
+import { PRIMARY_NAV, SECONDARY_NAV, SITE } from '../../data/site'
 import { searchArticles } from '../../services/contentRepository'
 import { cn } from '../../lib/utils'
 
@@ -40,19 +40,19 @@ export function Header() {
                 Media<span className="text-forest">CBD</span>
               </span>
               <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.16em] text-sage">
-                Média · France
+                {SITE.scope}
               </span>
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 xl:flex" aria-label="Navigation principale">
-            {NAV_LINKS.map((link) => (
+          <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Navigation principale">
+            {PRIMARY_NAV.map((link) => (
               <NavLink
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
                   cn(
-                    'rounded-full px-3 py-2 text-sm font-medium text-ink-soft transition hover:bg-mist hover:text-ink',
+                    'rounded-full px-2.5 py-2 text-sm font-medium text-ink-soft transition hover:bg-mist hover:text-ink',
                     isActive && 'bg-mist text-forest',
                   )
                 }
@@ -103,8 +103,9 @@ export function Header() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex flex-col gap-1">
-              {NAV_LINKS.map((link) => (
+            <nav className="flex flex-col gap-1 overflow-y-auto">
+              <p className="px-4 pb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-sage">Principal</p>
+              {PRIMARY_NAV.map((link) => (
                 <NavLink
                   key={link.path}
                   to={link.path}
@@ -112,6 +113,22 @@ export function Header() {
                   className={({ isActive }) =>
                     cn(
                       'rounded-xl px-4 py-3 text-base font-medium text-ink-soft hover:bg-mist',
+                      isActive && 'bg-mist text-forest',
+                    )
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+              <p className="mt-3 px-4 pb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-sage">Plus</p>
+              {SECONDARY_NAV.map((link) => (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    cn(
+                      'rounded-xl px-4 py-2.5 text-sm font-medium text-ink-soft hover:bg-mist',
                       isActive && 'bg-mist text-forest',
                     )
                   }

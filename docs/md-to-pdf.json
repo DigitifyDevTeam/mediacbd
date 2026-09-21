@@ -1,0 +1,17 @@
+{
+  "stylesheet": ["docs/pdf-style.css"],
+  "body_class": "mediacbd-doc",
+  "pdf_options": {
+    "format": "A4",
+    "margin": {
+      "top": "18mm",
+      "right": "16mm",
+      "bottom": "18mm",
+      "left": "16mm"
+    },
+    "printBackground": true,
+    "displayHeaderFooter": true,
+    "headerTemplate": "<div></div>",
+    "footerTemplate": "<div style=\"font-size:9px;width:100%;text-align:center;color:#5f7f6d;font-family:Segoe UI,sans-serif;\">MediaCBD — Document interne · France · Europe · <span class=\"pageNumber\"></span>/<span class=\"totalPages\"></span></div>"
+  }
+}

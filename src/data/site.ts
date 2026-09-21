@@ -4,50 +4,64 @@ export const SITE = {
   name: 'MediaCBD',
   domain: 'mediacbd.fr',
   url: 'https://mediacbd.fr',
-  tagline: 'Le média du CBD qui ne confond pas preuve et promesse.',
+  tagline: 'Le radar CBD France–Europe : clarifier le droit et les faits.',
+  scope: 'France · Europe',
   email: 'contact@mediacbd.fr',
   description:
-    'MediaCBD décrypte le CBD et le chanvre en France et en Europe : réglementation, science, marché et annuaire des acteurs.',
+    'MediaCBD est la plateforme d’information du CBD en France et en Europe : radar, observatoire juridique, comparateur pays, qualité et annuaire factuel des acteurs — sans notes ni classement.',
 } as const
 
 export const ARTICLE_CATEGORIES: CategoryMeta[] = [
   {
-    slug: 'actualites',
-    label: 'Actualités',
-    description: 'La veille courte et sourcée sur le CBD et le chanvre.',
-    path: '/actualites',
+    slug: 'radar',
+    label: 'Radar',
+    description: 'Briefings datés et sourcés, tagués France ou Europe.',
+    path: '/radar',
   },
   {
-    slug: 'reglementation',
-    label: 'Réglementation',
-    description: 'Ce que disent réellement les textes, sans raccourci juridique.',
-    path: '/reglementation',
+    slug: 'dossiers',
+    label: 'Dossiers',
+    description: 'Enquêtes longues : faits, textes, impact filière.',
+    path: '/dossiers',
   },
   {
-    slug: 'marche',
-    label: 'Marché & Business',
-    description: 'Filière, acteurs, chiffres et dynamiques économiques.',
-    path: '/marche',
+    slug: 'qualite',
+    label: 'Qualité',
+    description: 'COA, labos, red flags et checklist de lot.',
+    path: '/qualite',
   },
   {
-    slug: 'science',
-    label: 'Science & Bien-être',
-    description: 'Preuves, incertitudes et lectures prudentes des études.',
-    path: '/science',
+    slug: 'filiere',
+    label: 'Filière',
+    description: 'B2B, producteurs, grossistes et dynamiques de marché.',
+    path: '/filiere',
   },
   {
-    slug: 'culture',
-    label: 'Culture & Société',
-    description: 'Usages, débats publics et mutations culturelles.',
-    path: '/culture',
-  },
-  {
-    slug: 'guides',
-    label: 'Guides',
-    description: 'Repères concrets pour comprendre et choisir avec discernement.',
-    path: '/guides',
+    slug: 'mode-emploi',
+    label: 'Mode d’emploi',
+    description: 'Playbooks concrets pour lire un COA, comprendre un produit, s’orienter.',
+    path: '/mode-emploi',
   },
 ]
+
+export const PRIMARY_NAV = [
+  { label: 'Radar', path: '/radar' },
+  { label: 'Droit FR/EU', path: '/droit' },
+  { label: 'Europe', path: '/europe' },
+  { label: 'Dossiers', path: '/dossiers' },
+  { label: 'Qualité', path: '/qualite' },
+  { label: 'Acteurs', path: '/acteurs' },
+] as const
+
+export const SECONDARY_NAV = [
+  { label: 'Filière', path: '/filiere' },
+  { label: 'Lexique', path: '/lexique' },
+  { label: 'Méthode', path: '/methode' },
+  { label: 'Alertes', path: '/alertes' },
+] as const
+
+/** @deprecated use PRIMARY_NAV — kept for gradual migration */
+export const NAV_LINKS = PRIMARY_NAV
 
 export const DIRECTORY_CATEGORY_LABELS: Record<DirectoryCategory, string> = {
   boutique: 'Boutique',
@@ -58,10 +72,16 @@ export const DIRECTORY_CATEGORY_LABELS: Record<DirectoryCategory, string> = {
   'bien-etre': 'Bien-être',
 }
 
-export const NAV_LINKS = [
-  ...ARTICLE_CATEGORIES.map((category) => ({
-    label: category.label,
-    path: category.path,
-  })),
-  { label: 'Annuaire', path: '/annuaire' },
-] as const
+export const LEGAL_STATUS_LABELS = {
+  autorise: 'Autorisé',
+  conditionne: 'Conditionné',
+  interdit: 'Interdit',
+  flou: 'Zone floue',
+} as const
+
+export const COUNTRY_RULE_LABELS = {
+  oui: 'Oui',
+  non: 'Non',
+  conditionne: 'Sous conditions',
+  variable: 'Variable',
+} as const

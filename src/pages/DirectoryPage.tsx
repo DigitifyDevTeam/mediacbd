@@ -12,10 +12,10 @@ import type { DirectoryCategory, DirectoryFilters } from '../types/content'
 
 export function DirectoryPage() {
   usePageMeta({
-    title: 'Annuaire CBD',
+    title: 'Acteurs CBD — annuaire factuel',
     description:
-      'Annuaire MediaCBD : boutiques, shops, grossistes, laboratoires et producteurs de CBD en France. Recherche, filtres et fiches détaillées.',
-    path: '/annuaire',
+      'Annuaire MediaCBD des acteurs CBD en France : boutiques, labos, producteurs, grossistes. Fiches factuelles, sans notes ni classement.',
+    path: '/acteurs',
   })
 
   const [params, setParams] = useSearchParams()
@@ -23,17 +23,17 @@ export function DirectoryPage() {
   const query = params.get('q') ?? ''
   const category = params.get('categorie') ?? ''
   const region = params.get('region') ?? ''
-  const verifiedOnly = params.get('verifie') === '1'
-  const sort = (params.get('tri') as DirectoryFilters['sort']) || 'relevance'
+  const updatedOnly = params.get('a-jour') === '1'
+  const sort = (params.get('tri') as DirectoryFilters['sort']) || 'name'
 
   const results = useMemo(
-    () => filterDirectory({ query, category, region, verifiedOnly, sort }),
-    [query, category, region, verifiedOnly, sort],
+    () => filterDirectory({ query, category, region, updatedOnly, sort }),
+    [query, category, region, updatedOnly, sort],
   )
   const regions = getDirectoryRegions()
   const categories = getDirectoryCategories()
 
-  const filters: DirectoryFilters = { query, category, region, verifiedOnly, sort }
+  const filters: DirectoryFilters = { query, category, region, updatedOnly, sort }
 
   function updateParam(key: string, value: string) {
     const next = new URLSearchParams(params)
@@ -45,13 +45,13 @@ export function DirectoryPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <header className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">Annuaire</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">Acteurs</p>
         <h1 className="mt-3 font-display text-4xl font-semibold text-ink sm:text-5xl">
-          Trouver un acteur CBD près de chez vous
+          Annuaire factuel des acteurs
         </h1>
         <p className="mt-4 text-base text-ink-soft sm:text-lg">
-          Recherchez par ville, région ou type d’activité. Les fiches mettent en avant la transparence : analyses,
-          horaires, contact et statut vérifié.
+          Coordonnées et informations publiques (horaires, contact, type d’activité). MediaCBD ne note pas, ne classe
+          pas et ne met pas les acteurs en concurrence.
         </p>
       </header>
 
@@ -64,7 +64,7 @@ export function DirectoryPage() {
             <input
               value={filters.query}
               onChange={(event) => updateParam('q', event.target.value)}
-              placeholder="Nom, ville, produit, tag…"
+              placeholder="Nom, ville, activité…"
               className="min-h-11 w-full rounded-xl border border-line bg-paper px-4 text-sm outline-none focus:border-forest"
             />
           </label>
@@ -79,9 +79,9 @@ export function DirectoryPage() {
               className="min-h-11 w-full rounded-xl border border-line bg-paper px-3 text-sm outline-none focus:border-forest"
             >
               <option value="">Toutes</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {DIRECTORY_CATEGORY_LABELS[category as DirectoryCategory]}
+              {categories.map((item) => (
+                <option key={item} value={item}>
+                  {DIRECTORY_CATEGORY_LABELS[item as DirectoryCategory]}
                 </option>
               ))}
             </select>
@@ -97,9 +97,9 @@ export function DirectoryPage() {
               className="min-h-11 w-full rounded-xl border border-line bg-paper px-3 text-sm outline-none focus:border-forest"
             >
               <option value="">Toutes</option>
-              {regions.map((region) => (
-                <option key={region} value={region}>
-                  {region}
+              {regions.map((item) => (
+                <option key={item} value={item}>
+                  {item}
                 </option>
               ))}
             </select>
@@ -114,9 +114,7 @@ export function DirectoryPage() {
               onChange={(event) => updateParam('tri', event.target.value)}
               className="min-h-11 w-full rounded-xl border border-line bg-paper px-3 text-sm outline-none focus:border-forest"
             >
-              <option value="relevance">Pertinence</option>
-              <option value="rating">Note</option>
-              <option value="name">Nom</option>
+              <option value="name">Nom (A→Z)</option>
               <option value="city">Ville</option>
             </select>
           </label>
@@ -126,24 +124,22 @@ export function DirectoryPage() {
           <label className="inline-flex items-center gap-2 text-sm text-ink-soft">
             <input
               type="checkbox"
-              checked={filters.verifiedOnly}
-              onChange={(event) => updateParam('verifie', event.target.checked ? '1' : '0')}
+              checked={filters.updatedOnly}
+              onChange={(event) => updateParam('a-jour', event.target.checked ? '1' : '0')}
               className="h-4 w-4 rounded border-line accent-forest"
             />
-            Afficher uniquement les fiches vérifiées
+            Uniquement les fiches à jour
           </label>
           <p className="text-sm font-medium text-forest">
-            {results.length} résultat{results.length > 1 ? 's' : ''}
+            {results.length} fiche{results.length > 1 ? 's' : ''}
           </p>
         </div>
       </section>
 
       {results.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-line bg-paper-elevated p-10 text-center">
-          <p className="font-display text-2xl font-semibold text-ink">Aucun résultat</p>
-          <p className="mt-2 text-sm text-ink-soft">
-            Essayez d’élargir vos filtres ou de retirer la contrainte « vérifié ».
-          </p>
+          <p className="font-display text-2xl font-semibold text-ink">Aucune fiche</p>
+          <p className="mt-2 text-sm text-ink-soft">Élargissez vos filtres pour afficher plus d’acteurs.</p>
           <button
             type="button"
             onClick={() => setParams({}, { replace: true })}

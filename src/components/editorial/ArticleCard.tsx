@@ -17,14 +17,32 @@ interface ArticleCardProps {
   variant?: 'default' | 'compact' | 'horizontal'
 }
 
+export function GeoChips({ geo }: { geo: Article['geo'] }) {
+  return (
+    <span className="inline-flex flex-wrap gap-1">
+      {geo.map((code) => (
+        <span
+          key={code}
+          className="rounded-md bg-mist px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-forest"
+        >
+          {code}
+        </span>
+      ))}
+    </span>
+  )
+}
+
 export function ArticleCard({ article, variant = 'default' }: ArticleCardProps) {
   if (variant === 'compact') {
     return (
       <article className="group">
         <Link to={`/article/${article.slug}`} className="block">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">
-            {categoryLabel(article.category)}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">
+              {categoryLabel(article.category)}
+            </p>
+            <GeoChips geo={article.geo} />
+          </div>
           <h3 className="mt-2 font-display text-lg font-semibold leading-snug text-ink transition group-hover:text-forest">
             {article.title}
           </h3>
@@ -42,10 +60,7 @@ export function ArticleCard({ article, variant = 'default' }: ArticleCardProps) 
       <article className="group grid gap-4 rounded-2xl border border-line bg-paper-elevated/80 p-4 shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift sm:grid-cols-[11rem_1fr]">
         <Link
           to={`/article/${article.slug}`}
-          className={cn(
-            'min-h-28 overflow-hidden rounded-xl bg-gradient-to-br',
-            article.coverGradient,
-          )}
+          className={cn('min-h-28 overflow-hidden rounded-xl bg-gradient-to-br', article.coverGradient)}
           aria-hidden
         >
           <div className="flex h-full items-end p-3">
@@ -55,6 +70,9 @@ export function ArticleCard({ article, variant = 'default' }: ArticleCardProps) 
           </div>
         </Link>
         <div>
+          <div className="mb-1">
+            <GeoChips geo={article.geo} />
+          </div>
           <Link to={`/article/${article.slug}`}>
             <h3 className="font-display text-xl font-semibold leading-snug text-ink transition group-hover:text-forest">
               {article.title}
@@ -76,10 +94,11 @@ export function ArticleCard({ article, variant = 'default' }: ArticleCardProps) 
         className={cn('relative block aspect-[16/10] bg-gradient-to-br', article.coverGradient)}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_45%)]" />
-        <div className="absolute bottom-3 left-3">
+        <div className="absolute bottom-3 left-3 flex flex-wrap gap-2">
           <span className="rounded-full bg-paper/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-forest">
             {categoryLabel(article.category)}
           </span>
+          <GeoChips geo={article.geo} />
         </div>
       </Link>
       <div className="flex flex-1 flex-col p-5">

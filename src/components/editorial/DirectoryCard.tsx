@@ -1,36 +1,28 @@
-import { ArrowUpRight, BadgeCheck, MapPin, Star } from 'lucide-react'
+import { ArrowUpRight, CheckCircle2, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { DirectoryBusiness } from '../../types/content'
 import { DIRECTORY_CATEGORY_LABELS } from '../../data/site'
-import { formatRating } from '../../lib/utils'
-import { cn } from '../../lib/utils'
 
 interface DirectoryCardProps {
   business: DirectoryBusiness
-  featured?: boolean
 }
 
-export function DirectoryCard({ business, featured = false }: DirectoryCardProps) {
+export function DirectoryCard({ business }: DirectoryCardProps) {
   return (
-    <article
-      className={cn(
-        'group flex h-full flex-col rounded-2xl border border-line bg-paper-elevated/95 p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift',
-        featured && 'ring-1 ring-leaf/40',
-      )}
-    >
+    <article className="group flex h-full flex-col rounded-2xl border border-line bg-paper-elevated/95 p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">
             {DIRECTORY_CATEGORY_LABELS[business.category]}
           </p>
           <h3 className="mt-2 font-display text-xl font-semibold text-ink transition group-hover:text-forest">
-            <Link to={`/annuaire/${business.slug}`}>{business.name}</Link>
+            <Link to={`/acteurs/${business.slug}`}>{business.name}</Link>
           </h3>
         </div>
-        {business.verified ? (
+        {business.infoUpdated ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-mist px-2.5 py-1 text-[11px] font-semibold text-verified">
-            <BadgeCheck className="h-3.5 w-3.5" />
-            Vérifié
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Fiche à jour
           </span>
         ) : null}
       </div>
@@ -42,10 +34,11 @@ export function DirectoryCard({ business, featured = false }: DirectoryCardProps
           <MapPin className="h-3.5 w-3.5" />
           {business.city} · {business.region}
         </span>
-        <span className="inline-flex items-center gap-1">
-          <Star className="h-3.5 w-3.5 fill-accent text-accent" />
-          {formatRating(business.rating)} ({business.reviewCount})
-        </span>
+        {business.source === 'gmb' ? (
+          <span className="rounded-md bg-paper px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sage">
+            Infos publiques
+          </span>
+        ) : null}
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -57,7 +50,7 @@ export function DirectoryCard({ business, featured = false }: DirectoryCardProps
       </div>
 
       <Link
-        to={`/annuaire/${business.slug}`}
+        to={`/acteurs/${business.slug}`}
         className="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-semibold text-forest hover:gap-2"
       >
         Voir la fiche

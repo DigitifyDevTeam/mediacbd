@@ -1,11 +1,19 @@
+import { alerts } from '../data/alerts'
 import { articles } from '../data/articles'
+import { europeCountries } from '../data/europe'
 import { directoryBusinesses } from '../data/directory'
+import { glossaryTerms } from '../data/glossary'
+import { legalTopics } from '../data/legal'
 import { ARTICLE_CATEGORIES } from '../data/site'
 import type {
+  AlertItem,
   Article,
   ArticleCategory,
   DirectoryBusiness,
   DirectoryFilters,
+  EuropeCountry,
+  GlossaryTerm,
+  LegalTopic,
 } from '../types/content'
 
 function sortByDateDesc(a: Article, b: Article) {
@@ -39,9 +47,24 @@ export function getLatestArticles(limit = 8): Article[] {
   return getAllArticles().slice(0, limit)
 }
 
+export function getRadarArticles(limit?: number): Article[] {
+  const items = getArticlesByCategory('radar')
+  return typeof limit === 'number' ? items.slice(0, limit) : items
+}
+
+export function getDossierArticles(limit?: number): Article[] {
+  const items = articles.filter((article) => article.dossier || article.category === 'dossiers').sort(sortByDateDesc)
+  return typeof limit === 'number' ? items.slice(0, limit) : items
+}
+
 export function getGuideArticles(limit?: number): Article[] {
-  const guides = getArticlesByCategory('guides')
+  const guides = getArticlesByCategory('mode-emploi')
   return typeof limit === 'number' ? guides.slice(0, limit) : guides
+}
+
+export function getQualityArticles(limit?: number): Article[] {
+  const items = getArticlesByCategory('qualite')
+  return typeof limit === 'number' ? items.slice(0, limit) : items
 }
 
 export function searchArticles(query: string): Article[] {
@@ -54,6 +77,7 @@ export function searchArticles(query: string): Article[] {
       article.excerpt,
       article.category,
       ...article.tags,
+      ...article.geo,
       article.author,
     ]
       .join(' ')
@@ -75,7 +99,9 @@ export function getDirectoryBusinessBySlug(slug: string): DirectoryBusiness | un
 }
 
 export function getFeaturedDirectory(limit = 4): DirectoryBusiness[] {
-  return directoryBusinesses.filter((business) => business.featured).slice(0, limit)
+  return [...directoryBusinesses]
+    .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+    .slice(0, limit)
 }
 
 export function getDirectoryRegions(): string[] {
@@ -94,7 +120,7 @@ export function filterDirectory(filters: DirectoryFilters): DirectoryBusiness[] 
   let results = directoryBusinesses.filter((business) => {
     if (filters.category && business.category !== filters.category) return false
     if (filters.region && business.region !== filters.region) return false
-    if (filters.verifiedOnly && !business.verified) return false
+    if (filters.updatedOnly && !business.infoUpdated) return false
 
     if (!query) return true
 
@@ -114,21 +140,13 @@ export function filterDirectory(filters: DirectoryFilters): DirectoryBusiness[] 
   })
 
   switch (filters.sort) {
+    case 'city':
+      results = [...results].sort(
+        (a, b) => a.city.localeCompare(b.city, 'fr') || a.name.localeCompare(b.name, 'fr'),
+      )
+      break
     case 'name':
       results = [...results].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
-      break
-    case 'rating':
-      results = [...results].sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount)
-      break
-    case 'city':
-      results = [...results].sort((a, b) => a.city.localeCompare(b.city, 'fr'))
-      break
-    case 'relevance':
-      results = [...results].sort((a, b) => {
-        if (a.featured !== b.featured) return a.featured ? -1 : 1
-        if (a.verified !== b.verified) return a.verified ? -1 : 1
-        return b.rating - a.rating
-      })
       break
     default: {
       const _exhaustive: never = filters.sort
@@ -145,7 +163,8 @@ export function getRelatedArticles(article: Article, limit = 3): Article[] {
     .filter(
       (item) =>
         item.category === article.category ||
-        item.tags.some((tag) => article.tags.includes(tag)),
+        item.tags.some((tag) => article.tags.includes(tag)) ||
+        item.geo.some((g) => article.geo.includes(g)),
     )
     .slice(0, limit)
 }
@@ -160,4 +179,24 @@ export function getRelatedBusinesses(
       (item) => item.region === business.region || item.category === business.category,
     )
     .slice(0, limit)
+}
+
+export function getLegalTopics(): LegalTopic[] {
+  return [...legalTopics]
+}
+
+export function getEuropeCountries(): EuropeCountry[] {
+  return [...europeCountries]
+}
+
+export function getGlossaryTerms(): GlossaryTerm[] {
+  return [...glossaryTerms].sort((a, b) => a.term.localeCompare(b.term, 'fr'))
+}
+
+export function getGlossaryTerm(slug: string): GlossaryTerm | undefined {
+  return glossaryTerms.find((term) => term.slug === slug)
+}
+
+export function getAlerts(): AlertItem[] {
+  return [...alerts].sort((a, b) => b.date.localeCompare(a.date))
 }

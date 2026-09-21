@@ -5,7 +5,7 @@ import { SITE } from '../data/site'
 export function AboutPage() {
   usePageMeta({
     title: 'À propos',
-    description: `Découvrez ${SITE.name}, le média indépendant du CBD et du chanvre en France.`,
+    description: `Découvrez ${SITE.name}, plateforme d’information CBD France–Europe : droit, radar, qualité, annuaire factuel.`,
     path: '/a-propos',
   })
 
@@ -15,21 +15,22 @@ export function AboutPage() {
       <h1 className="mt-3 font-display text-4xl font-semibold text-ink sm:text-5xl">À propos</h1>
       <div className="prose-article mt-8">
         <p>
-          MediaCBD est un média indépendant dédié au CBD et au chanvre. Notre mission : rendre lisible une filière
-          mouvante, entre réglementation, science, marché et usages.
+          MediaCBD est une plateforme d’information dédiée au CBD en <strong>France et en Europe</strong> : radar,
+          observatoire juridique, cadres nationaux, qualité et annuaire factuel des acteurs.
         </p>
         <p>
-          Nous publions des décryptages sourcés, des guides pratiques et un annuaire des acteurs — pour aider lecteurs et
-          professionnels à distinguer les faits des promesses.
+          Nous ne sommes pas un site de mise en concurrence commerciale. L’annuaire documente des informations
+          publiques ; il ne note pas et ne classe pas les boutiques.
         </p>
         <p>
-          Ce prototype front est conçu pour accueillir ensuite vos contenus réels et votre jeu de données annuaire
-          (CSV/JSON), puis une API Django si besoin.
+          Notre promesse : clarifier les faits et le droit — avec des dates, des statuts, et un périmètre FR/EU clair.
         </p>
       </div>
-      <Link to="/charte-editoriale" className="mt-6 inline-flex text-sm font-semibold text-forest">
-        Lire la charte éditoriale →
-      </Link>
+      <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold text-forest">
+        <Link to="/methode">Méthode →</Link>
+        <Link to="/droit">Observatoire juridique →</Link>
+        <Link to="/acteurs">Annuaire →</Link>
+      </div>
     </div>
   )
 }

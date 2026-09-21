@@ -1,10 +1,13 @@
 export type ArticleCategory =
-  | 'actualites'
-  | 'reglementation'
-  | 'marche'
-  | 'science'
-  | 'culture'
-  | 'guides'
+  | 'radar'
+  | 'dossiers'
+  | 'qualite'
+  | 'filiere'
+  | 'mode-emploi'
+
+export type GeoScope = 'FR' | 'UE' | 'BE' | 'DE' | 'ES' | 'IT' | 'NL' | 'PT' | 'CH' | 'EU-OTHER'
+
+export type LegalStatus = 'autorise' | 'conditionne' | 'interdit' | 'flou'
 
 export interface Article {
   id: string
@@ -18,7 +21,10 @@ export interface Article {
   readingMinutes: number
   featured?: boolean
   lead?: boolean
+  dossier?: boolean
   tags: string[]
+  geo: GeoScope[]
+  impact?: string
   coverGradient: string
 }
 
@@ -30,6 +36,7 @@ export type DirectoryCategory =
   | 'producteur'
   | 'bien-etre'
 
+/** Neutral actor listing — factual / GMB-style fields only. No ratings or rankings. */
 export interface DirectoryBusiness {
   id: string
   slug: string
@@ -45,13 +52,12 @@ export interface DirectoryBusiness {
   phone?: string
   email?: string
   website?: string
-  verified: boolean
-  rating: number
-  reviewCount: number
+  /** Public info checked as up-to-date — not a quality or preference badge */
+  infoUpdated: boolean
+  source?: 'gmb' | 'manuel' | 'editeur'
   tags: string[]
   openingHours: string
   products: string[]
-  featured?: boolean
 }
 
 export interface CategoryMeta {
@@ -65,6 +71,48 @@ export interface DirectoryFilters {
   query: string
   category: string
   region: string
-  verifiedOnly: boolean
-  sort: 'relevance' | 'name' | 'rating' | 'city'
+  updatedOnly: boolean
+  sort: 'name' | 'city'
+}
+
+export interface LegalTopic {
+  id: string
+  label: string
+  status: LegalStatus
+  summary: string
+  lastUpdated: string
+  sources: string[]
+  impact: string
+}
+
+export type CountryRule = 'oui' | 'non' | 'conditionne' | 'variable'
+
+export interface EuropeCountry {
+  code: string
+  name: string
+  flowers: CountryRule
+  residualThc: string
+  foodCbd: CountryRule
+  medical: CountryRule
+  shops: CountryRule
+  note: string
+}
+
+export interface GlossaryTerm {
+  slug: string
+  term: string
+  short: string
+  definition: string
+  related?: string[]
+}
+
+export interface AlertItem {
+  id: string
+  slug: string
+  title: string
+  summary: string
+  date: string
+  geo: GeoScope
+  severity: 'info' | 'watch' | 'critical'
+  type: 'reglementaire' | 'rappel' | 'marche' | 'science'
 }

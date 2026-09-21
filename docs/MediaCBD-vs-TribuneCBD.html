@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MediaCBD vs TribuneCBD — Différences et avantages</title>
+  <style>
+    :root {
+      --ink: #13261c;
+      --forest: #1a3d2e;
+      --forest-deep: #0f281c;
+      --sage: #5f7f6d;
+      --leaf: #8fad87;
+      --mist: #e8efe6;
+      --line: #d5e0d4;
+      --paper: #f5f8f3;
+      --accent: #b86b2e;
+      --accent-soft: #f3e6d8;
+      --verified: #2f6b4f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.55;
+      font-size: 11pt;
+    }
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 36px 28px 48px;
+      background: #fff;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--forest);
+      color: #fff;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 0.85rem;
+    }
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.9rem;
+      color: var(--forest);
+      margin: 0 0 0.3em;
+      line-height: 1.2;
+      border-bottom: 4px solid var(--leaf);
+      padding-bottom: 0.4em;
+    }
+    h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      color: var(--forest);
+      margin-top: 1.6rem;
+      margin-bottom: 0.65rem;
+      padding: 0.4rem 0.65rem;
+      background: linear-gradient(90deg, var(--mist), #fff);
+      border-left: 5px solid var(--forest);
+      border-radius: 0 8px 8px 0;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 1rem;
+      color: var(--forest-deep);
+      margin-top: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+    .meta {
+      color: var(--sage);
+      font-size: 0.9rem;
+      margin-bottom: 1.2rem;
+    }
+    .chip {
+      display: inline-block;
+      background: var(--mist);
+      color: var(--forest);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      margin-right: 0.25rem;
+    }
+    .chip-accent {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.8rem 0 1.1rem;
+      font-size: 0.88rem;
+      page-break-inside: avoid;
+      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 0 0 1px var(--line);
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    thead th {
+      background: var(--forest) !important;
+      color: #fff !important;
+      font-weight: 700;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    tbody td:first-child {
+      font-weight: 700;
+      color: var(--forest);
+      background: var(--mist) !important;
+      width: 22%;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    tbody tr:nth-child(even) td:not(:first-child) {
+      background: var(--paper) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .col-tribune { background: #f7f3ee !important; }
+    .col-media { background: var(--mist) !important; }
+    ul, ol { padding-left: 1.2rem; margin: 0.4rem 0 0.8rem; }
+    li { margin: 0.28rem 0; }
+    li::marker { color: var(--leaf); }
+    blockquote {
+      margin: 1rem 0;
+      padding: 0.85rem 1rem;
+      border-left: 5px solid var(--leaf);
+      background: var(--mist);
+      color: var(--forest);
+      border-radius: 0 10px 10px 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .callout {
+      background: var(--accent-soft);
+      border: 1px solid #e2c7a8;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin: 0.9rem 0;
+      color: #6a3f16;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .footer {
+      margin-top: 1.8rem;
+      padding-top: 0.85rem;
+      border-top: 2px solid var(--line);
+      font-size: 0.8rem;
+      color: var(--sage);
+    }
+    strong { color: var(--forest-deep); }
+    @media print {
+      body { background: #fff; }
+      .page { padding: 0; max-width: none; }
+      h2, table, blockquote, .callout { break-inside: avoid; }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="badge">Document interne MediaCBD</div>
+    <h1>MediaCBD vs TribuneCBD</h1>
+    <p class="meta">
+      Différences clés, avantages et positionnement original<br />
+      Septembre 2026 ·
+      <span class="chip">MediaCBD · FR/EU</span>
+      <span class="chip chip-accent">Tribune · FR/EU/Monde</span>
+    </p>
+
+    <h2>Promesses</h2>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th class="col-tribune">TribuneCBD</th>
+          <th class="col-media">MediaCBD</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Nature</td>
+          <td class="col-tribune">Newsroom / média éditorial classique</td>
+          <td class="col-media"><strong>Plateforme décisionnelle</strong> (média + outils)</td>
+        </tr>
+        <tr>
+          <td>Usage</td>
+          <td class="col-tribune">Lire pour comprendre</td>
+          <td class="col-media">Lire <strong>et décider</strong> (shop, pro, consommateur)</td>
+        </tr>
+        <tr>
+          <td>Différenciateur</td>
+          <td class="col-tribune">Articles, rubriques, dossiers</td>
+          <td class="col-media">Observatoire juridique, cadres Europe, qualité, annuaire <strong>factuel</strong> (sans notes)</td>
+        </tr>
+        <tr>
+          <td>Slogan</td>
+          <td class="col-tribune">Le média qui décrypte</td>
+          <td class="col-media"><strong>Clarifier le CBD en France et en Europe</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <strong>En une phrase :</strong> MediaCBD n’est pas un clone de TribuneCBD.
+      Même exigence éditoriale, architecture différente — et <strong>aucun classement commercial entre acteurs</strong>.
+    </div>
+
+    <h2>1. Différences structurelles</h2>
+    <h3>Navigation</h3>
+    <p><strong>TribuneCBD (newsroom) :</strong> Actualités · Réglementation · Marché &amp; Business · Science &amp; Bien-être · Culture &amp; Société · Guides · Annuaire</p>
+    <p><strong>MediaCBD (plateforme) :</strong></p>
+    <ul>
+      <li><strong>Principal :</strong> Radar · Droit FR/EU · Europe · Dossiers · Qualité · Acteurs</li>
+      <li><strong>Secondaire :</strong> Filière · Lexique · Méthode · Alertes</li>
+    </ul>
+    <p>→ Moins de rubriques « presse », plus de <strong>fonctions</strong>.</p>
+
+    <h3>Pages qui nous différencient</h3>
+    <ol>
+      <li><strong>Observatoire juridique</strong> — tableau de bord daté : autorisé / conditionné / interdit / zone floue + impact pratique</li>
+      <li><strong>Cadres Europe</strong> — matrice pays / règles (pas les boutiques)</li>
+      <li><strong>Alertes</strong> — chronologie de signaux FR/EU</li>
+      <li><strong>Lexique</strong> — référentiel de termes</li>
+      <li><strong>Méthode</strong> — transparence éditoriale</li>
+      <li><strong>Acteurs</strong> — annuaire factuel (infos publiques / GMB possibles), <strong>sans notes ni concurrence</strong></li>
+    </ol>
+
+    <h3>Homepage &amp; géographie</h3>
+    <p><strong>TribuneCBD :</strong> une éditoriale + grille d’articles + guides + charte + newsletter.</p>
+    <p><strong>MediaCBD :</strong> Hero plateforme → Radar → Tableau juridique → Dossiers → Alertes → Europe → Acteurs → Mode d’emploi.</p>
+    <p>TribuneCBD assume <strong>Monde</strong>. MediaCBD verrouille <strong>France–Europe</strong> : plus de focus, moins de dilution.</p>
+
+    <h2>2. Avantages MediaCBD</h2>
+    <ul>
+      <li><strong>Utilité &gt; volume</strong> — moins « encore un article », plus « où en est-on vraiment ? »</li>
+      <li><strong>Décision outillée</strong> — impact pratique consommateur / shop / pro</li>
+      <li><strong>Moat produit</strong> — tableau juridique + matrice Europe + carte acteurs</li>
+      <li><strong>Crédibilité méthode</strong> — dates, statuts, refus du hors-scope Monde</li>
+      <li><strong>Annuaire comme pilier</strong> — pas un bonus en bas de page</li>
+      <li><strong>B2B-friendly</strong> — filière, COA, comparateur pays pour shops et pros</li>
+    </ul>
+
+    <h2>3. Ce qui reste commun</h2>
+    <p>Faits, sources, prudence santé, ton sérieux, contenu réglementaire/scientifique, référencement d’acteurs.</p>
+    <p><strong>Commun = valeurs. Différent = produit et architecture.</strong></p>
+
+    <h2>4. Pitch 30 secondes</h2>
+    <blockquote>
+      TribuneCBD est un excellent <strong>média</strong> qui décrypte le CBD France–Europe–Monde.<br />
+      MediaCBD est une <strong>plateforme d’information France–Europe</strong> : radar, droit, cadres nationaux, qualité, annuaire factuel.<br />
+      On clarifie les faits — <strong>sans classer les acteurs</strong>.
+    </blockquote>
+
+    <h2>5. Messages à utiliser</h2>
+    <ul>
+      <li>« Clarifier le CBD en France et en Europe. »</li>
+      <li>« France–Europe only — zéro dilution Monde. »</li>
+      <li>« Comparer les règles, pas les boutiques. »</li>
+      <li>« Annuaire factuel : infos publiques, pas un concours. »</li>
+      <li>« Pas une une de plus : un tableau de bord juridique. »</li>
+    </ul>
+
+    <h2>6. Risques à éviter</h2>
+    <ol>
+      <li>Recoller des rubriques Tribune sous d’autres noms sans outils</li>
+      <li>Remplir le site d’articles US/Canada « parce que ça clique »</li>
+      <li>Traiter Droit / Europe comme de simples listes d’articles</li>
+      <li>Copier les formules et la structure newsroom de Tribune</li>
+    </ol>
+
+    <h2>7. Prochaines étapes</h2>
+    <ol>
+      <li>Import données annuaire (ex. GMB) — champs factuels uniquement</li>
+      <li>Observatoire juridique tenu à jour</li>
+      <li>Enrichir les cadres Europe (sources)</li>
+      <li>Newsletter veille FR/EU</li>
+      <li><strong>Ne pas</strong> construire de score / duel entre acteurs</li>
+    </ol>
+
+    <h2>8. Synthèse décideurs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Critère</th>
+          <th class="col-tribune">TribuneCBD</th>
+          <th class="col-media">MediaCBD</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Type</td><td class="col-tribune">Média</td><td class="col-media">Plateforme + média</td></tr>
+        <tr><td>Scope</td><td class="col-tribune">FR / EU / Monde</td><td class="col-media">FR / EU seulement</td></tr>
+        <tr><td>Force</td><td class="col-tribune">Décryptage éditorial</td><td class="col-media">Décision outillée</td></tr>
+        <tr><td>Page signature</td><td class="col-tribune">Articles / une</td><td class="col-media">Droit + Europe + Acteurs</td></tr>
+        <tr><td>Fidélisation</td><td class="col-tribune">Retour pour lire</td><td class="col-media">Retour pour vérifier un statut</td></tr>
+        <tr><td>Originalité</td><td class="col-tribune">Newsroom CBD premium</td><td class="col-media">Produit décisionnel CBD</td></tr>
+      </tbody>
+    </table>
+
+    <p class="footer">
+      Document MediaCBD — usage interne et partenaires.<br />
+      Ne pas présenter comme une attaque concurrentielle : positionnement complémentaire et différenciant.
+    </p>
+  </main>
+</body>
+</html>

@@ -19,7 +19,7 @@ export function Newsletter() {
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-leaf">La lettre MediaCBD</p>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Une veille claire, pas un nuage de notifications.
+            Une veille FR/EU claire, pas un nuage de notifications.
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-mist/90 sm:text-base">
             Réglementation, analyses et repères utiles — directement dans votre boîte mail, sans bruit inutile.

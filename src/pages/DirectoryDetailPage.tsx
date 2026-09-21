@@ -1,10 +1,9 @@
-import { BadgeCheck, ExternalLink, Mail, MapPin, Phone, Star } from 'lucide-react'
+import { CheckCircle2, ExternalLink, Mail, MapPin, Phone } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { DirectoryCard } from '../components/editorial/DirectoryCard'
 import { DIRECTORY_CATEGORY_LABELS, SITE } from '../data/site'
 import { clearJsonLd, setJsonLd, usePageMeta } from '../hooks/usePageMeta'
-import { formatRating } from '../lib/utils'
 import {
   getDirectoryBusinessBySlug,
   getRelatedBusinesses,
@@ -18,7 +17,7 @@ export function DirectoryDetailPage() {
   usePageMeta({
     title: business?.name,
     description: business?.description,
-    path: `/annuaire/${business?.slug ?? ''}`,
+    path: `/acteurs/${business?.slug ?? ''}`,
   })
 
   useEffect(() => {
@@ -38,11 +37,7 @@ export function DirectoryDetailPage() {
       telephone: business.phone,
       email: business.email,
       url: business.website,
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: business.rating,
-        reviewCount: business.reviewCount,
-      },
+      openingHours: business.openingHours,
       publisher: { '@type': 'Organization', name: SITE.name },
     })
     return () => clearJsonLd('business-jsonld')
@@ -52,7 +47,7 @@ export function DirectoryDetailPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <h1 className="font-display text-3xl font-semibold">Fiche introuvable</h1>
-        <Link to="/annuaire" className="mt-4 inline-block text-forest">
+        <Link to="/acteurs" className="mt-4 inline-block text-forest">
           Retour à l’annuaire
         </Link>
       </div>
@@ -61,8 +56,8 @@ export function DirectoryDetailPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <Link to="/annuaire" className="text-sm font-semibold text-forest hover:underline">
-        ← Annuaire
+      <Link to="/acteurs" className="text-sm font-semibold text-forest hover:underline">
+        ← Acteurs
       </Link>
 
       <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -78,18 +73,17 @@ export function DirectoryDetailPage() {
                 {business.address}, {business.postalCode} {business.city} · {business.region}
               </p>
             </div>
-            {business.verified ? (
+            {business.infoUpdated ? (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1.5 text-sm font-semibold text-verified">
-                <BadgeCheck className="h-4 w-4" />
-                Fiche vérifiée
+                <CheckCircle2 className="h-4 w-4" />
+                Fiche à jour
               </span>
             ) : null}
           </div>
 
-          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-sm font-semibold text-accent">
-            <Star className="h-4 w-4 fill-accent" />
-            {formatRating(business.rating)} / 5 · {business.reviewCount} avis
-          </div>
+          <p className="mt-5 rounded-xl border border-line bg-mist/40 px-4 py-3 text-sm text-ink-soft">
+            Fiche informative uniquement. MediaCBD ne recommande pas, ne note pas et ne classe pas les acteurs.
+          </p>
 
           <p className="mt-6 text-base leading-relaxed text-ink-soft">{business.longDescription}</p>
 
@@ -105,7 +99,7 @@ export function DirectoryDetailPage() {
           </div>
 
           <div className="mt-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">Produits & services</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">Activités / produits</p>
             <ul className="mt-3 flex flex-wrap gap-2">
               {business.products.map((product) => (
                 <li key={product} className="rounded-full bg-mist px-3 py-1.5 text-sm font-medium text-forest">
@@ -162,8 +156,9 @@ export function DirectoryDetailPage() {
               ) : null}
             </ul>
             <p className="mt-5 text-xs leading-relaxed text-mist/80">
-              MediaCBD référence des informations publiques. Vérifiez toujours les mentions légales et analyses avant
-              tout achat.
+              Informations publiques à titre documentaire
+              {business.source === 'gmb' ? ' (ex. fiche type Google Business Profile)' : ''}. Pas un classement ni une
+              recommandation commerciale.
             </p>
           </div>
         </aside>
@@ -171,7 +166,8 @@ export function DirectoryDetailPage() {
 
       {related.length > 0 ? (
         <section className="mt-12">
-          <h2 className="font-display text-2xl font-semibold text-ink">Dans la même zone</h2>
+          <h2 className="font-display text-2xl font-semibold text-ink">Autres fiches dans la même zone</h2>
+          <p className="mt-2 text-sm text-ink-soft">Liste alphabétique / proximité géographique — sans ordre de préférence.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {related.map((item) => (
               <DirectoryCard key={item.id} business={item} />

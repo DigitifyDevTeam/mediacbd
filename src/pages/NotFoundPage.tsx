@@ -18,10 +18,10 @@ export function NotFoundPage() {
           Accueil
         </Link>
         <Link
-          to="/annuaire"
+          to="/acteurs"
           className="inline-flex min-h-11 items-center rounded-full border border-line px-5 text-sm font-semibold text-forest"
         >
-          Annuaire
+          Acteurs
         </Link>
       </div>
     </div>

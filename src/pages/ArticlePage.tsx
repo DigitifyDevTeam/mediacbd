@@ -61,13 +61,26 @@ export function ArticlePage() {
             {article.title}
           </h1>
           <p className="mt-5 max-w-3xl text-lg text-ink-soft">{article.excerpt}</p>
-          <div className="mt-5 flex flex-wrap gap-3 text-sm text-sage">
+          <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-sage">
             <span>{formatDate(article.publishedAt)}</span>
             <span>·</span>
             <span>{article.readingMinutes} min de lecture</span>
             <span>·</span>
             <span>{article.author}</span>
           </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {article.geo.map((code) => (
+              <span key={code} className="rounded-md bg-mist px-2 py-0.5 text-[11px] font-bold text-forest">
+                {code}
+              </span>
+            ))}
+          </div>
+          {article.impact ? (
+            <p className="mt-4 rounded-xl border border-line bg-mist/50 px-4 py-3 text-sm text-ink-soft">
+              <span className="font-semibold text-forest">Impact pratique — </span>
+              {article.impact}
+            </p>
+          ) : null}
 
           <div
             className={cn(
