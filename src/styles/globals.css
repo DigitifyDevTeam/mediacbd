@@ -1,0 +1,135 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #13261c;
+  --color-ink-soft: #3d5246;
+  --color-forest: #1a3d2e;
+  --color-forest-deep: #0f281c;
+  --color-sage: #5f7f6d;
+  --color-leaf: #8fad87;
+  --color-mist: #e8efe6;
+  --color-paper: #f5f8f3;
+  --color-paper-elevated: #fcfdfb;
+  --color-line: #d5e0d4;
+  --color-accent: #b86b2e;
+  --color-accent-soft: #f3e6d8;
+  --color-verified: #2f6b4f;
+  --color-danger: #9b3b2e;
+
+  --shadow-soft: 0 18px 40px -28px rgb(19 38 28 / 0.35);
+  --shadow-lift: 0 24px 50px -32px rgb(19 38 28 / 0.4);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background:
+      radial-gradient(ellipse 80% 50% at 10% -10%, rgb(143 173 135 / 0.18), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(184 107 46 / 0.08), transparent 45%),
+      linear-gradient(180deg, var(--color-paper) 0%, #eef3ec 100%);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgb(26 61 46 / 0.18);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    max-width: 100%;
+    display: block;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-forest);
+    outline-offset: 3px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .surface-noise {
+    background-image:
+      linear-gradient(180deg, rgb(245 248 243 / 0.72), rgb(245 248 243 / 0.92)),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  .prose-article h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2vw, 1.75rem);
+    line-height: 1.25;
+    margin: 2rem 0 0.85rem;
+    color: var(--color-ink);
+  }
+
+  .prose-article h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.6rem;
+  }
+
+  .prose-article p {
+    margin: 0 0 1.1rem;
+    color: var(--color-ink-soft);
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+
+  .prose-article ul {
+    margin: 0 0 1.2rem;
+    padding-left: 1.2rem;
+    color: var(--color-ink-soft);
+  }
+
+  .prose-article li {
+    margin-bottom: 0.45rem;
+  }
+
+  .prose-article blockquote {
+    margin: 1.75rem 0;
+    padding: 1rem 1.25rem;
+    border-left: 3px solid var(--color-leaf);
+    background: rgb(232 239 230 / 0.65);
+    color: var(--color-forest);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    line-height: 1.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
