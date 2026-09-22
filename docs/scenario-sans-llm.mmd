@@ -1,0 +1,14 @@
+stateDiagram-v2
+  [*] --> nouveau: FormulaireOuEmail
+  nouveau --> contacte: AccuseReceptionEtDemandeDossierFacturation
+  contacte --> facture: DossierCompletEnvoiFacture
+  facture --> publie: PaiementConfirmePublicationFiche
+  publie --> [*]: ClientConfirmeOK
+  nouveau --> besoin_humain: QuestionInconnue
+  contacte --> besoin_humain: QuestionInconnue
+  facture --> besoin_humain: QuestionInconnue
+  publie --> besoin_humain: CorrectionOuDemandeInhabituelle
+  besoin_humain --> contacte: ReponseHumaine
+  besoin_humain --> facture: ReponseHumaine
+  besoin_humain --> publie: ReponseHumaine
+  nouveau --> refuse: PasEligible

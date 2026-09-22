@@ -1,0 +1,79 @@
+flowchart TB
+
+  subgraph W1["1 - Workflow complet Django + LLM"]
+    direction TD
+    form["Formulaire Acteurs"]
+    gmailIn["Nouvel e-mail Gmail"]
+    api["POST /api/leads/"]
+    leads[("leads")]
+    emailLog[("Journal e-mails")]
+    poll["Cron / Celery"]
+    classify["Classification LLM"]
+    scenario["Selection du scenario"]
+    render["Redaction LLM"]
+    gate{"Policy gate OK ?"}
+    gmailOut["Gmail API OAuth"]
+    regen["Regeneration sous contraintes"]
+
+    form --> api --> leads
+    gmailIn --> poll
+    leads --> poll
+    poll --> classify --> scenario --> render --> gate
+    gate -->|oui| gmailOut
+    gate -->|non| regen --> render
+    gmailOut --> emailLog
+    gmailOut --> leads
+  end
+
+  subgraph W2["2 - Scenario commercial SANS LLM"]
+    direction TD
+    s2_start((Debut))
+    s2_nouveau[nouveau]
+    s2_contacte[contacte]
+    s2_facture[facture]
+    s2_publie[publie]
+    s2_humain[besoin_humain]
+    s2_refuse[refuse]
+    s2_fin((Fin))
+
+    s2_start -->|FormulaireOuEmail| s2_nouveau
+    s2_nouveau -->|AccuseReceptionEtDemandeDossierFacturation| s2_contacte
+    s2_contacte -->|DossierCompletEnvoiFacture| s2_facture
+    s2_facture -->|PaiementConfirmePublicationFiche| s2_publie
+    s2_publie -->|ClientConfirmeOK| s2_fin
+    s2_nouveau -->|QuestionInconnue| s2_humain
+    s2_contacte -->|QuestionInconnue| s2_humain
+    s2_facture -->|QuestionInconnue| s2_humain
+    s2_publie -->|CorrectionOuDemandeInhabituelle| s2_humain
+    s2_humain -->|ReponseHumaine| s2_contacte
+    s2_humain -->|ReponseHumaine| s2_facture
+    s2_humain -->|ReponseHumaine| s2_publie
+    s2_nouveau -->|PasEligible| s2_refuse
+  end
+
+  subgraph W3["3 - Scenario commercial AVEC LLM"]
+    direction TD
+    s3_start((Debut))
+    s3_nouveau[nouveau]
+    s3_contacte[contacte]
+    s3_facture[facture]
+    s3_publie[publie]
+    s3_refuse[refuse]
+    s3_fin((Fin))
+
+    s3_start -->|FormulaireOuEmailEntrant| s3_nouveau
+    s3_nouveau -->|LLM_AccuseReceptionEtDemandeDossierFacturation| s3_contacte
+    s3_contacte -->|LLM_RelanceChampsManquants| s3_contacte
+    s3_contacte -->|LLM_DossierCompletEnvoiFacture| s3_facture
+    s3_facture -->|LLM_RelancePaiement| s3_facture
+    s3_facture -->|LLM_PaiementOKPublicationFiche| s3_publie
+    s3_publie -->|LLM_ReponseQuestionApresVente| s3_publie
+    s3_publie -->|LLM_ClientConfirmeOK| s3_fin
+    s3_nouveau -->|LLM_PasEligible| s3_refuse
+    s3_contacte -->|LLM_PasEligible| s3_refuse
+    s3_facture -->|LLM_AffaireAnnulee| s3_refuse
+    s3_nouveau -->|LLM_HorsScenarioMaisRepondu| s3_contacte
+    s3_contacte -->|LLM_HorsScenarioMaisRepondu| s3_contacte
+    s3_facture -->|LLM_HorsScenarioMaisRepondu| s3_facture
+    s3_publie -->|LLM_HorsScenarioMaisRepondu| s3_publie
+  end

@@ -1,0 +1,34 @@
+flowchart TD
+  subgraph capture [Capture]
+    form["Formulaire Acteurs"]
+    gmailIn["Nouvel e-mail Gmail"]
+  end
+
+  subgraph stockage [Stockage]
+    api["POST /api/leads/"]
+    leads[("leads")]
+    emailLog[("Journal e-mails")]
+  end
+
+  subgraph worker [Worker Django + LLM]
+    poll["Cron / Celery"]
+    classify["Classification LLM (intention)"]
+    scenario["Selection du scenario"]
+    render["Redaction LLM (template + champs lead)"]
+    gate{"Policy gate : regles respectees ?"}
+  end
+
+  subgraph envoi [Envoi]
+    gmailOut["Gmail API OAuth"]
+    regen["Regeneration sous contraintes"]
+  end
+
+  form --> api --> leads
+  gmailIn --> poll
+  leads --> poll
+  poll --> classify --> scenario --> render --> gate
+  gate -->|"oui"| gmailOut
+  gate -->|"non : violation regles"| regen
+  regen --> render
+  gmailOut --> emailLog
+  gmailOut --> leads

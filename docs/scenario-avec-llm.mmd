@@ -1,0 +1,19 @@
+stateDiagram-v2
+  [*] --> nouveau: FormulaireOuEmailEntrant
+
+  nouveau --> contacte: LLM_AccuseReceptionEtDemandeDossierFacturation
+  contacte --> contacte: LLM_RelanceChampsManquants
+  contacte --> facture: LLM_DossierCompletEnvoiFacture
+  facture --> facture: LLM_RelancePaiement
+  facture --> publie: LLM_PaiementOKPublicationFiche
+  publie --> publie: LLM_ReponseQuestionApresVente
+  publie --> [*]: LLM_ClientConfirmeOK
+
+  nouveau --> refuse: LLM_PasEligible
+  contacte --> refuse: LLM_PasEligible
+  facture --> refuse: LLM_AffaireAnnulee
+
+  nouveau --> contacte: LLM_HorsScenarioMaisRepondu
+  contacte --> contacte: LLM_HorsScenarioMaisRepondu
+  facture --> facture: LLM_HorsScenarioMaisRepondu
+  publie --> publie: LLM_HorsScenarioMaisRepondu
