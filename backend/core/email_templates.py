@@ -174,10 +174,11 @@ Si vous ne souhaitez plus recevoir de proposition de notre part, répondez « ST
 _t(
     EmailTemplate(
         key="ask_billing_pack",
-        name="Demande dossier fiche + facturation",
-        subject="{{media_name}} — suite référencement {{brand_name}}",
+        name="Accusé de réception + dossier fiche / facturation",
+        subject="{{media_name}} — accusé de réception et suite référencement {{brand_name}}",
         required=(
             "brand_name",
+            "contact_name",
             "media_name",
             "sender_name",
             "commercial_email",
@@ -188,12 +189,13 @@ _t(
         ),
         optional=("directory_url",),
         ai_hint=(
-            "Réponse chaude après intérêt. Lister clairement les pièces à fournir. "
+            "Un seul e-mail : accusé de réception + demande du dossier de facturation. "
+            "Ne pas proposer d'envoyer un accusé séparé. Lister les pièces. "
             "Mentionner option article séparément."
         ),
-        body="""Bonjour,
+        body="""Bonjour {{contact_name}},
 
-Merci pour votre message et pour votre intérêt pour {{media_name}}.
+Accusé de réception : nous avons bien reçu votre demande / votre intérêt pour le référencement de {{brand_name}} sur l'annuaire {{media_name}}. Merci pour votre message.
 
 Après validation, nous pouvons proposer à {{brand_name}} une fiche professionnelle permanente sur l'annuaire MediaCBD, avec intégration d'un lien en dofollow, au tarif de {{price_dofollow_ttc}} {{currency}} TTC, par virement bancaire. La publication et l'intégration du lien interviendront uniquement après confirmation effective de l'encaissement.
 

@@ -16,6 +16,14 @@ class Lead(models.Model):
     email = models.EmailField('E-mail professionnel')
     website = models.URLField('Site internet', blank=True)
     address = models.TextField('Adresse de la boutique')
+    invoice_ref = models.CharField(
+        'Référence facture',
+        max_length=40,
+        blank=True,
+        db_index=True,
+        help_text='Ex. MCBD-2026-001 — à indiquer sur le virement.',
+    )
+    listing_url = models.URLField('URL de la fiche publiée', blank=True)
     status = models.CharField(
         max_length=20,
         choices=Status.choices,

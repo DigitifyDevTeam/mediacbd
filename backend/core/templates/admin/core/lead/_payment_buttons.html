@@ -1,0 +1,15 @@
+{% if original and original.pk %}
+<div id="paiement" class="module" style="margin:16px 0;padding:16px;background:#f5f8f3;border:2px solid #1a3d2e;border-radius:8px;">
+  <h2 style="margin:0 0 8px;">Paiement</h2>
+  {% if original.status == 'published' %}
+  <p style="margin:0;font-weight:bold;color:#2f6b4f;">Payé — fiche confirmée. Rien à faire.</p>
+  {% else %}
+  <p style="margin:0 0 12px;">Si le virement est sur le compte, cliquez. Sinon, attendez — pas d’autre bouton.</p>
+  <form method="post" action="{% url 'admin:core_lead_paiement_recu' original.pk %}">
+    {% csrf_token %}
+    <input type="submit" value="C’est payé"
+           style="background:#2f6b4f;border:0;color:#fff;padding:12px 22px;font-size:16px;border-radius:6px;cursor:pointer;">
+  </form>
+  {% endif %}
+</div>
+{% endif %}

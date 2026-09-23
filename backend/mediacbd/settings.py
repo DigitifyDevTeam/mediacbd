@@ -3,7 +3,24 @@
 from pathlib import Path
 import os
 
+
+def _load_dotenv(path: Path) -> None:
+    """Load KEY=VALUE lines into os.environ without overwriting existing vars."""
+    if not path.is_file():
+        return
+    for raw in path.read_text(encoding='utf-8').splitlines():
+        line = raw.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key:
+            os.environ.setdefault(key, value)
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+_load_dotenv(BASE_DIR / '.env')
 
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY',
@@ -102,5 +119,45 @@ CSRF_TRUSTED_ORIGINS = [
     if o.strip()
 ]
 
-# Public contact inbox for listing leads (email send can be wired later)
-LISTING_NOTIFY_EMAIL = os.environ.get('LISTING_NOTIFY_EMAIL', 'contact@mediacbd.fr')
+# --- SMTP (Amen Securemail: 465 + SSL; TLS and SSL are mutually exclusive) ---
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend',
+)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp-fr.securemail.pro')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '465'))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', '0') == '1'
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', '1') == '1'
+if EMAIL_USE_TLS:
+    EMAIL_USE_SSL = False
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '').replace(' ', '')
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL',
+    EMAIL_HOST_USER or 'MediaCBD <commercial@mediacbd.fr>',
+)
+EMAIL_SENDER_NAME = os.environ.get('EMAIL_SENDER_NAME', "L'équipe MediaCBD")
+# Loopback while testing: all mail goes to this address.
+EMAIL_FORCE_TO = os.environ.get('EMAIL_FORCE_TO', '').strip()
+LISTING_NOTIFY_EMAIL = (
+    os.environ.get('LISTING_NOTIFY_EMAIL', '').strip() or EMAIL_HOST_USER
+)
+
+# --- Ollama (remote, Bearer) ---
+OLLAMA_URL = os.environ.get('OLLAMA_URL', '').rstrip('/')
+OLLAMA_API_KEY = os.environ.get('OLLAMA_API_KEY', '')
+LLAMA_MODEL = os.environ.get('LLAMA_MODEL', 'llama3.1:8b')
+OLLAMA_TIMEOUT = int(os.environ.get('OLLAMA_TIMEOUT', '180'))
+OLLAMA_ENABLED = os.environ.get('OLLAMA_ENABLED', '1') == '1'
+
+# --- Offer / media (email only, never on the public site) ---
+MEDIA_NAME = os.environ.get('MEDIA_NAME', 'MediaCBD')
+MEDIA_SITE_URL = os.environ.get('MEDIA_SITE_URL', 'https://mediacbd.fr')
+DIRECTORY_URL = os.environ.get('DIRECTORY_URL', 'https://mediacbd.fr/acteurs')
+EDITOR_FOOTER = os.environ.get('EDITOR_FOOTER', 'MediaCBD')
+PRICE_HT = os.environ.get('PRICE_HT', '30')
+PRICE_TTC = os.environ.get('PRICE_TTC', '36')
+PRICE_DOFOLLOW_TTC = os.environ.get('PRICE_DOFOLLOW_TTC', '50')
+PRICE_ARTICLE_TTC = os.environ.get('PRICE_ARTICLE_TTC', '80')
+CURRENCY = os.environ.get('CURRENCY', '€')
+PAYMENT_METHOD = os.environ.get('PAYMENT_METHOD', 'virement bancaire')

@@ -1,12 +1,19 @@
 import json
+import logging
 import re
+from smtplib import SMTPException
 
 from django.conf import settings
+from django.core.mail import BadHeaderError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from .mailer import notify_new_lead, send_lead_template, smtp_configured
 from .models import Lead
+from .ollama_client import ollama_configured
+
+logger = logging.getLogger(__name__)
 
 EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 MAX_BODY_BYTES = 32_768
@@ -44,6 +51,8 @@ def api_root(request):
                 'leads': '/api/leads/',
                 'admin': '/admin/',
             },
+            'ollama': ollama_configured(),
+            'smtp': smtp_configured(),
         }
     )
 
@@ -113,17 +122,37 @@ def leads(request):
         address=address[:2000],
     )
 
-    return JsonResponse(
-        {
-            'ok': True,
-            'id': lead.pk,
-            'message': 'Demande enregistrée. Nous vous recontacterons pour la suite.',
-            'notify': getattr(settings, 'LISTING_NOTIFY_EMAIL', None),
-        },
-        status=201,
-    )
+    mail_meta: dict | None = None
+    mail_error = ''
+    if smtp_configured():
+        try:
+            mail_meta = send_lead_template(lead, 'ask_billing_pack')
+            notify_new_lead(lead)
+        except (SMTPException, BadHeaderError, OSError, KeyError, TimeoutError) as exc:
+            logger.warning('Lead %s saved but email failed: %s', lead.pk, exc)
+            mail_error = str(exc)
+
+    payload = {
+        'ok': True,
+        'id': lead.pk,
+        'message': 'Demande enregistrée. Nous vous recontacterons pour la suite.',
+        'notify': getattr(settings, 'LISTING_NOTIFY_EMAIL', None),
+    }
+    if mail_meta:
+        payload['email'] = mail_meta
+    if mail_error:
+        payload['email_error'] = mail_error
+
+    return JsonResponse(payload, status=201)
 
 
 @require_http_methods(['GET'])
 def health(request):
-    return JsonResponse({'ok': True, 'service': 'mediacbd-api'})
+    return JsonResponse(
+        {
+            'ok': True,
+            'service': 'mediacbd-api',
+            'ollama': ollama_configured(),
+            'smtp': smtp_configured(),
+        }
+    )

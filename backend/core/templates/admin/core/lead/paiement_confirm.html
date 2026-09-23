@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>C’est payé — {{ lead.brand_name }}</h1>
+<p>Statut actuel : <strong>{{ lead.get_status_display }}</strong>
+{% if lead.invoice_ref %} · Facture {{ lead.invoice_ref }}{% endif %}</p>
+{% if lead.status == 'published' %}
+<p>Ce lead est déjà payé / publié. Aucune action.</p>
+{% else %}
+<p>Vous avez vu le virement. Confirmer envoie l’e-mail « fiche en ligne » et passe le lead en Publié.</p>
+<form method="post" action="{% url 'admin:core_lead_paiement_recu' lead.pk %}" style="margin:24px 0;">
+  {% csrf_token %}
+  <input type="submit" value="C’est payé — envoyer l’e-mail"
+         style="background:#2f6b4f;border:0;color:#fff;padding:14px 22px;font-size:16px;border-radius:8px;cursor:pointer;">
+</form>
+{% endif %}
+<p><a href="{% url 'admin:core_lead_change' lead.pk %}">← Retour au lead</a>
+ · <a href="{% url 'admin:core_lead_changelist' %}">Liste des leads</a></p>
+{% endblock %}

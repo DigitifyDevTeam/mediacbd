@@ -40,14 +40,11 @@ Tarifs **uniquement** dans les e-mails (jamais sur le site).
 | Clé | Quand |
 |---|---|
 | `prospect_outreach` | Outbound froid (~30/jour) |
-| `ask_billing_pack` | Après intérêt — demande dossier |
-| `form_ack` | Après formulaire Acteurs |
+| `ask_billing_pack` | Accusé de réception + demande dossier (un seul e-mail) |
 | `nudge_missing_fields` | Relance éléments manquants |
 | `invoice_sent` | Envoi facture PDF |
 | `payment_reminder` | Relance paiement |
 | `listing_published` | Fiche en ligne |
-| `stop_confirm` | Réponse STOP |
-| `rejected_not_fit` | Non éligible |
 
 ## Usage Python
 
