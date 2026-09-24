@@ -1,0 +1,12 @@
+[Unit]
+Description=MediaCBD payment reminder emails
+After=network.target mediacbd.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/mediacbd/backend
+Environment=DJANGO_SETTINGS_MODULE=mediacbd.settings
+EnvironmentFile=-/var/www/mediacbd/backend/.env
+ExecStart=/var/www/mediacbd/backend/.venv/bin/python manage.py send_payment_reminders

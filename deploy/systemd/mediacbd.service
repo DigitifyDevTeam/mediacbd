@@ -1,0 +1,25 @@
+[Unit]
+Description=MediaCBD Django (Gunicorn)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+RuntimeDirectory=mediacbd
+RuntimeDirectoryMode=0755
+WorkingDirectory=/var/www/mediacbd/backend
+Environment=DJANGO_SETTINGS_MODULE=mediacbd.settings
+EnvironmentFile=-/var/www/mediacbd/backend/.env
+ExecStart=/var/www/mediacbd/backend/.venv/bin/gunicorn \
+    --config /var/www/mediacbd/deploy/gunicorn.conf.py \
+    mediacbd.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target

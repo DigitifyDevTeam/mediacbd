@@ -32,7 +32,7 @@ export function HomePage() {
   const radar = getRadarArticles(6)
   const dossiers = getDossierArticles(2)
   const guides = getGuideArticles(3)
-  const directory = getFeaturedDirectory(4)
+  const directory = getFeaturedDirectory(5)
   const legal = getLegalTopics()
   const countries = getEuropeCountries().slice(0, 4)
   const alerts = getAlerts().slice(0, 3)
@@ -41,6 +41,33 @@ export function HomePage() {
   return (
     <div className="mx-auto max-w-7xl space-y-14 px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       {lead ? <PlatformHero article={lead} /> : null}
+
+      <section className="rounded-[2rem] border border-line bg-paper-elevated/95 p-6 shadow-soft sm:p-8">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-sage">
+              <MapPinned className="h-3.5 w-3.5" />
+              Acteurs
+            </p>
+            <h2 className="mt-2 font-display text-3xl font-semibold text-ink">5 enseignes les plus connues</h2>
+            <p className="mt-2 max-w-2xl text-sm text-ink-soft sm:text-base">
+              Les cinq acteurs les plus identifiés et les plus largement utilisés dans l’annuaire public — sans
+              note, sans ville imposée.
+            </p>
+          </div>
+          <Link
+            to="/acteurs"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-forest px-5 text-sm font-semibold text-paper"
+          >
+            Parcourir l’annuaire
+          </Link>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {directory.map((business) => (
+            <DirectoryCard key={business.id} business={business} />
+          ))}
+        </div>
+      </section>
 
       <section>
         <div className="mb-5 flex items-end justify-between gap-4">
@@ -149,33 +176,6 @@ export function HomePage() {
           </Link>
         </div>
         <EuropeTable countries={countries} />
-      </section>
-
-      <section className="rounded-[2rem] border border-line bg-paper-elevated/95 p-6 shadow-soft sm:p-8">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-sage">
-              <MapPinned className="h-3.5 w-3.5" />
-              Acteurs
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-semibold text-ink">Annuaire factuel</h2>
-            <p className="mt-2 max-w-2xl text-sm text-ink-soft sm:text-base">
-              Fiches partenaires vérifiées — coordonnées et lien site. Sans notes, sans classement, sans mise en
-              concurrence.
-            </p>
-          </div>
-          <Link
-            to="/acteurs"
-            className="inline-flex min-h-11 items-center justify-center rounded-full bg-forest px-5 text-sm font-semibold text-paper"
-          >
-            Parcourir l’annuaire
-          </Link>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {directory.map((business) => (
-            <DirectoryCard key={business.id} business={business} />
-          ))}
-        </div>
       </section>
 
       <section>

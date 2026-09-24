@@ -98,11 +98,14 @@ export function getDirectoryBusinessBySlug(slug: string): DirectoryBusiness | un
   return directoryBusinesses.find((business) => business.slug === slug)
 }
 
-export function getFeaturedDirectory(limit = 4): DirectoryBusiness[] {
-  return [...directoryBusinesses]
-    .filter((business) => business.partner || Boolean(business.website))
-    .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
-    .slice(0, limit)
+export function getFeaturedDirectory(limit = 5): DirectoryBusiness[] {
+  return directoryBusinesses.filter((business) => business.partner).slice(0, limit)
+}
+
+/** 1-based public ranking from directory.json order. */
+export function getDirectoryRank(business: DirectoryBusiness): number {
+  const index = directoryBusinesses.findIndex((item) => item.id === business.id)
+  return index >= 0 ? index + 1 : 0
 }
 
 export function getDirectoryRegions(): string[] {
@@ -141,6 +144,8 @@ export function filterDirectory(filters: DirectoryFilters): DirectoryBusiness[] 
   })
 
   switch (filters.sort) {
+    case 'rank':
+      break
     case 'city':
       results = [...results].sort(
         (a, b) => a.city.localeCompare(b.city, 'fr') || a.name.localeCompare(b.name, 'fr'),

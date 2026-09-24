@@ -1,0 +1,10 @@
+[Unit]
+Description=Hourly MediaCBD payment reminders
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=90
+
+[Install]
+WantedBy=timers.target

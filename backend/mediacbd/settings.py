@@ -29,6 +29,9 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'
 
+if not DEBUG and SECRET_KEY.startswith('django-insecure-'):
+    raise ValueError('Set DJANGO_SECRET_KEY before running with DJANGO_DEBUG=0.')
+
 ALLOWED_HOSTS = [
     h.strip()
     for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
@@ -96,8 +99,34 @@ TIME_ZONE = 'Europe/Paris'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = Path(os.environ.get('DJANGO_STATIC_ROOT') or (BASE_DIR / 'staticfiles'))
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+    },
+}
+
+# Nginx terminates TLS and forwards the original scheme.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', '0') == '1'
+    SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '0'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_HSTS_SECONDS > 0
+    SECURE_HSTS_PRELOAD = SECURE_HSTS_SECONDS > 0
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'same-origin'
 
 # Vite / SPA
 CORS_ALLOWED_ORIGINS = [
@@ -161,3 +190,12 @@ PRICE_DOFOLLOW_TTC = os.environ.get('PRICE_DOFOLLOW_TTC', '50')
 PRICE_ARTICLE_TTC = os.environ.get('PRICE_ARTICLE_TTC', '80')
 CURRENCY = os.environ.get('CURRENCY', '€')
 PAYMENT_METHOD = os.environ.get('PAYMENT_METHOD', 'virement bancaire')
+
+# Automatic payment reminders while status=invoiced (stopped by « C’est payé »).
+# Production: keep AUTORUN off and use deploy/systemd/mediacbd-reminders.timer.
+PAYMENT_REMINDER_AFTER_DAYS = int(os.environ.get('PAYMENT_REMINDER_AFTER_DAYS', '2'))
+PAYMENT_REMINDER_INTERVAL_DAYS = int(os.environ.get('PAYMENT_REMINDER_INTERVAL_DAYS', '2'))
+PAYMENT_REMINDER_MAX = int(os.environ.get('PAYMENT_REMINDER_MAX', '3'))
+_autorun_default = '1' if DEBUG else '0'
+PAYMENT_REMINDER_AUTORUN = os.environ.get('PAYMENT_REMINDER_AUTORUN', _autorun_default) == '1'
+PAYMENT_REMINDER_POLL_SECONDS = int(os.environ.get('PAYMENT_REMINDER_POLL_SECONDS', '3600'))

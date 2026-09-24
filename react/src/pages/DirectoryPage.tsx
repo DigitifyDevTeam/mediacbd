@@ -6,17 +6,28 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { filterDirectory } from '../services/contentRepository'
 import type { DirectoryFilters } from '../types/content'
 
+function resolveDirectorySort(value: string | null): DirectoryFilters['sort'] {
+  switch (value) {
+    case 'rank':
+    case 'name':
+    case 'city':
+      return value
+    default:
+      return 'rank'
+  }
+}
+
 export function DirectoryPage() {
   usePageMeta({
-    title: 'Acteurs CBD — annuaire partenaires',
+    title: 'Acteurs CBD — classement public',
     description:
-      'Annuaire MediaCBD des boutiques CBD partenaires. Fiches vérifiées, sans notes ni classement. Référencement professionnel sur demande.',
+      'Classement public MediaCBD des enseignes CBD les plus connues et les plus largement utilisées, toutes villes confondues.',
     path: '/acteurs',
   })
 
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
-  const sort = (params.get('tri') as DirectoryFilters['sort']) || 'name'
+  const sort = resolveDirectorySort(params.get('tri'))
 
   const results = useMemo(
     () => filterDirectory({ query, category: '', region: '', updatedOnly: false, sort }),
@@ -35,11 +46,11 @@ export function DirectoryPage() {
       <header className="max-w-3xl">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage">Acteurs</p>
         <h1 className="mt-3 font-display text-4xl font-semibold text-ink sm:text-5xl">
-          Annuaire des acteurs partenaires
+          Classement public des enseignes
         </h1>
         <p className="mt-4 text-base text-ink-soft sm:text-lg">
-          Fiches vérifiées de boutiques CBD. MediaCBD ne note pas, ne classe pas et ne met pas les acteurs en
-          concurrence. Les fiches sont identifiées comme partenaires.
+          Les enseignes les plus identifiées et les plus largement utilisées, toutes villes confondues. Pas de
+          note produit : le rang reflète la notoriété et l’usage, pas une ville ou un quartier.
         </p>
         <a
           href="#referencement"
@@ -69,13 +80,14 @@ export function DirectoryPage() {
               onChange={(event) => updateParam('tri', event.target.value)}
               className="min-h-11 w-full rounded-xl border border-line bg-paper px-3 text-sm outline-none focus:border-forest"
             >
+              <option value="rank">Classement</option>
               <option value="name">Nom (A→Z)</option>
               <option value="city">Ville</option>
             </select>
           </label>
         </div>
         <p className="mt-4 text-sm font-medium text-forest">
-          {results.length} fiche{results.length > 1 ? 's' : ''} partenaire{results.length > 1 ? 's' : ''}
+          {results.length} enseigne{results.length > 1 ? 's' : ''} classée{results.length > 1 ? 's' : ''}
         </p>
       </section>
 

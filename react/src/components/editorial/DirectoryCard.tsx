@@ -1,19 +1,23 @@
 import { ArrowUpRight, CheckCircle2, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import type { DirectoryBusiness } from '../../types/content'
 import { DIRECTORY_CATEGORY_LABELS } from '../../data/site'
+import { getDirectoryRank } from '../../services/contentRepository'
+import type { DirectoryBusiness } from '../../types/content'
 
 interface DirectoryCardProps {
   business: DirectoryBusiness
 }
 
 export function DirectoryCard({ business }: DirectoryCardProps) {
+  const rank = getDirectoryRank(business)
+
   return (
     <article className="group flex h-full flex-col rounded-2xl border border-line bg-paper-elevated/95 p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sage">
-            {DIRECTORY_CATEGORY_LABELS[business.category]}
+            {rank > 0 ? `n°${rank}` : DIRECTORY_CATEGORY_LABELS[business.category]}
+            {rank > 0 ? ` · ${DIRECTORY_CATEGORY_LABELS[business.category]}` : ''}
           </p>
           <h3 className="mt-2 font-display text-xl font-semibold text-ink transition group-hover:text-forest">
             <Link to={`/acteurs/${business.slug}`}>{business.name}</Link>

@@ -1,15 +1,19 @@
+from datetime import timedelta
 from smtplib import SMTPException
 
+from django.conf import settings
 from django.contrib import admin, messages
 from django.core.mail import BadHeaderError
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
+from django.utils import timezone
 from django.utils.html import format_html
 
 from .models import Lead
 from .payments import PaymentActionError, mark_payment_received
+from .reminders import send_due_payment_reminders, stamp_invoiced
 
 
 def _run_paid(request, queryset) -> None:
@@ -38,6 +42,7 @@ class LeadAdmin(admin.ModelAdmin):
         'invoice_ref',
         'status',
         'paiement_button',
+        'relance_auto',
         'created_at',
     )
     list_filter = ('status', 'created_at')
@@ -49,7 +54,14 @@ class LeadAdmin(admin.ModelAdmin):
         'address',
         'invoice_ref',
     )
-    readonly_fields = ('created_at', 'updated_at', 'payment_actions')
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+        'payment_actions',
+        'invoiced_at',
+        'last_payment_reminder_at',
+        'payment_reminder_count',
+    )
     ordering = ('-created_at',)
     actions = ('action_cest_paye',)
     fieldsets = (
@@ -69,7 +81,14 @@ class LeadAdmin(admin.ModelAdmin):
         (
             'Facture / publication',
             {
-                'fields': ('invoice_ref', 'listing_url', 'payment_actions'),
+                'fields': (
+                    'invoice_ref',
+                    'listing_url',
+                    'invoiced_at',
+                    'last_payment_reminder_at',
+                    'payment_reminder_count',
+                    'payment_actions',
+                ),
             },
         ),
         ('Notes', {'fields': ('notes', 'created_at', 'updated_at')}),
@@ -143,3 +162,36 @@ class LeadAdmin(admin.ModelAdmin):
     @admin.action(description='C’est payé — envoyer e-mail fiche publiée')
     def action_cest_paye(self, request, queryset):
         _run_paid(request, queryset)
+
+    @admin.display(description='Relance auto')
+    def relance_auto(self, obj: Lead) -> str:
+        if obj.status == Lead.Status.PUBLISHED:
+            return 'Stop — payé'
+        if obj.status != Lead.Status.INVOICED:
+            return '—'
+        max_n = settings.PAYMENT_REMINDER_MAX
+        if obj.payment_reminder_count >= max_n:
+            return f'Stop — {obj.payment_reminder_count}/{max_n}'
+        if obj.last_payment_reminder_at:
+            next_at = obj.last_payment_reminder_at + timedelta(
+                days=settings.PAYMENT_REMINDER_INTERVAL_DAYS
+            )
+            return f'{obj.payment_reminder_count}/{max_n} · prochaine {timezone.localtime(next_at):%d/%m}'
+        return f'0/{max_n} · 1re dans {settings.PAYMENT_REMINDER_AFTER_DAYS} j'
+
+    def changelist_view(self, request, extra_context=None):
+        try:
+            sent = send_due_payment_reminders()
+        except (SMTPException, BadHeaderError, OSError, RuntimeError, KeyError) as exc:
+            messages.error(request, f'Relance auto : e-mail non envoyé ({exc}).')
+            sent = []
+        for item in sent:
+            messages.success(
+                request,
+                f'Relance automatique — {item["brand"]} → {item["to"]} ({item["subject"]})',
+            )
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        stamp_invoiced(obj)

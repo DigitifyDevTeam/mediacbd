@@ -6,6 +6,7 @@ import { DIRECTORY_CATEGORY_LABELS, SITE } from '../data/site'
 import { clearJsonLd, setJsonLd, usePageMeta } from '../hooks/usePageMeta'
 import {
   getDirectoryBusinessBySlug,
+  getDirectoryRank,
   getRelatedBusinesses,
 } from '../services/contentRepository'
 
@@ -13,6 +14,7 @@ export function DirectoryDetailPage() {
   const { slug } = useParams()
   const business = getDirectoryBusinessBySlug(slug ?? '')
   const related = business ? getRelatedBusinesses(business) : []
+  const rank = business ? getDirectoryRank(business) : 0
 
   usePageMeta({
     title: business?.name,
@@ -66,7 +68,7 @@ export function DirectoryDetailPage() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sage">
-                {DIRECTORY_CATEGORY_LABELS[business.category]}
+                {rank > 0 ? `Classement public n°${rank}` : DIRECTORY_CATEGORY_LABELS[business.category]}
               </p>
               <h1 className="mt-2 font-display text-4xl font-semibold text-ink">{business.name}</h1>
               <p className="mt-3 inline-flex items-center gap-2 text-sm text-ink-soft">
@@ -84,7 +86,7 @@ export function DirectoryDetailPage() {
           </div>
 
           <p className="mt-5 rounded-xl border border-line bg-mist/40 px-4 py-3 text-sm text-ink-soft">
-            Fiche informative uniquement. MediaCBD ne recommande pas, ne note pas et ne classe pas les acteurs.
+            Fiche informative. Le rang public reflète la notoriété et l’usage observés, pas une note produit ni une ville.
           </p>
 
           <p className="mt-6 text-base leading-relaxed text-ink-soft">{business.longDescription}</p>
@@ -187,8 +189,8 @@ export function DirectoryDetailPage() {
             </ul>
             <p className="mt-5 text-xs leading-relaxed text-mist/80">
               Informations publiques à titre documentaire
-              {business.source === 'gmb' ? ' (ex. fiche type Google Business Profile)' : ''}. Pas un classement ni une
-              recommandation commerciale.
+              {business.source === 'gmb' ? ' (ex. fiche type Google Business Profile)' : ''}. Le rang public mesure la
+              notoriété et l’usage, pas une recommandation commerciale.
             </p>
           </div>
         </aside>
@@ -196,9 +198,9 @@ export function DirectoryDetailPage() {
 
       {related.length > 0 ? (
         <section className="mt-12">
-          <h2 className="font-display text-2xl font-semibold text-ink">Autres fiches dans la même zone</h2>
+          <h2 className="font-display text-2xl font-semibold text-ink">Autres enseignes du classement</h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Liste alphabétique / proximité géographique — sans ordre de préférence.
+            Autres acteurs du classement public — toutes villes confondues.
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {related.map((item) => (

@@ -41,7 +41,7 @@ export type DirectoryCategory =
   | 'producteur'
   | 'bien-etre'
 
-/** Neutral actor listing — factual / GMB-style fields only. No ratings or rankings. */
+/** Public actor listing — factual / GMB-style fields. Order in directory.json is the public ranking. */
 export interface DirectoryBusiness {
   id: string
   slug: string
@@ -82,7 +82,7 @@ export interface DirectoryFilters {
   category: string
   region: string
   updatedOnly: boolean
-  sort: 'name' | 'city'
+  sort: 'rank' | 'name' | 'city'
 }
 
 export interface LegalTopic {

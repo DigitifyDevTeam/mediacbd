@@ -30,6 +30,9 @@ class Lead(models.Model):
         default=Status.NEW,
         db_index=True,
     )
+    invoiced_at = models.DateTimeField('Facturé le', null=True, blank=True)
+    last_payment_reminder_at = models.DateTimeField('Dernière relance', null=True, blank=True)
+    payment_reminder_count = models.PositiveSmallIntegerField('Relances envoyées', default=0)
     notes = models.TextField('Notes internes', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
