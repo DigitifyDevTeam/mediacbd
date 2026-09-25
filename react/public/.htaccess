@@ -1,0 +1,29 @@
+# MediaCBD — Apache-only. Nginx (this VPS) IGNORES this file.
+# If you see "404 nginx/1.18.0", paste deploy/nginx/locations.conf
+# into the Nginx server block instead.
+
+<IfModule mod_headers.c>
+  RequestHeader set X-Forwarded-Proto "https" env=HTTPS
+  RequestHeader set X-Forwarded-Proto "http" env=!HTTPS
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  Options -MultiViews -Indexes
+  RewriteEngine On
+  RewriteBase /
+
+  # Django (Gunicorn)
+  RewriteRule ^api(/.*)?$ http://127.0.0.1:8002/api$1 [P,L,QSA]
+  RewriteRule ^admin(/.*)?$ http://127.0.0.1:8002/admin$1 [P,L,QSA]
+  RewriteRule ^static(/.*)?$ http://127.0.0.1:8002/static$1 [P,L,QSA]
+
+  # Prerendered folders (e.g. /acteurs/index.html)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^(.*)$ $1/index.html [L]
+
+  # SPA fallback
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>

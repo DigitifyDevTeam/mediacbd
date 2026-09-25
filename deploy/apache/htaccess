@@ -1,0 +1,32 @@
+# Copy this file to public_html/.htaccess (same content as react/public/.htaccess).
+# MediaCBD — public_html
+# Proxy /api /admin /static → Gunicorn on 127.0.0.1:8002
+# Requires: mod_rewrite + mod_proxy + mod_proxy_http
+# ProxyPass does not work in .htaccess; [P] is the htaccess equivalent.
+# If Apache returns 500, [P] is disabled — use deploy/apache/mediacbd.conf in the vhost.
+
+<IfModule mod_headers.c>
+  RequestHeader set X-Forwarded-Proto "https" env=HTTPS
+  RequestHeader set X-Forwarded-Proto "http" env=!HTTPS
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  Options -MultiViews -Indexes
+  RewriteEngine On
+  RewriteBase /
+
+  # Django (Gunicorn)
+  RewriteRule ^api(/.*)?$ http://127.0.0.1:8002/api$1 [P,L,QSA]
+  RewriteRule ^admin(/.*)?$ http://127.0.0.1:8002/admin$1 [P,L,QSA]
+  RewriteRule ^static(/.*)?$ http://127.0.0.1:8002/static$1 [P,L,QSA]
+
+  # Prerendered folders (e.g. /acteurs/index.html)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^(.*)$ $1/index.html [L]
+
+  # SPA fallback
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>
