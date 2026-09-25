@@ -26,6 +26,10 @@ if [[ -f "$ROOT/.env" ]]; then
 fi
 
 BIND="${GUNICORN_BIND:-$BIND_DEFAULT}"
+if [[ ! -x "$VENV/bin/gunicorn" ]]; then
+  echo "==> venv missing — creating it (no sudo)"
+  bash "$ROOT/ensure-venv.sh"
+fi
 GUNICORN="${GUNICORN:-$VENV/bin/gunicorn}"
 
 usage() {

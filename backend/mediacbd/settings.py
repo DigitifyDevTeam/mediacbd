@@ -7,6 +7,8 @@ try:
     import pymysql
 except ImportError:
     pymysql = None
+else:
+    pymysql.install_as_MySQLdb()
 
 
 def _load_dotenv(path: Path) -> None:
@@ -87,38 +89,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mediacbd.wsgi.application'
 
 
-def _database_config() -> dict:
-    """SQLite unless DB_NAME or DB_ENGINE=mysql is set (production MySQL)."""
-    engine = os.environ.get('DB_ENGINE', '').strip().lower()
-    name = os.environ.get('DB_NAME', '').strip()
-    use_mysql = engine in ('mysql', 'django.db.backends.mysql') or bool(name)
-    if not use_mysql:
-        return {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
-    if pymysql is not None:
-        pymysql.install_as_MySQLdb()
-    return {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': name,
-            'USER': os.environ.get('DB_USER', ''),
-            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-            'HOST': os.environ.get('DB_HOST', 'localhost'),
-            'PORT': os.environ.get('DB_PORT', '3306'),
-            'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
-            'OPTIONS': {
-                'charset': 'utf8mb4',
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
+def _required_env(name: str) -> str:
+    value = os.environ.get(name, '').strip()
+    if not value:
+        raise ValueError(f'Set {name} in backend/.env — MySQL is required (SQLite is gone).')
+    return value
+
+
+if pymysql is None:
+    raise ValueError('PyMySQL is required. pip install -r backend/requirements.txt')
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': _required_env('DB_NAME'),
+        'USER': _required_env('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', 'localhost').strip() or 'localhost',
+        'PORT': os.environ.get('DB_PORT', '3306').strip() or '3306',
+        'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
-
-
-DATABASES = _database_config()
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},

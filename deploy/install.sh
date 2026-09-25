@@ -19,12 +19,7 @@ fi
 
 mkdir -p "$BACKEND/staticfiles" "$BACKEND/run" "$BACKEND/logs"
 
-if [[ ! -x "$VENV/bin/python" ]]; then
-  python3 -m venv "$VENV"
-fi
-
-"$VENV/bin/pip" install --upgrade pip
-"$VENV/bin/pip" install -r "$BACKEND/requirements.txt"
+bash "$BACKEND/ensure-venv.sh"
 
 if [[ ! -f "$BACKEND/.env" ]]; then
   cp "$APP_ROOT/deploy/env.production.example" "$BACKEND/.env"
