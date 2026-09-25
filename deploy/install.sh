@@ -1,67 +1,44 @@
 #!/usr/bin/env bash
-# One-time server bootstrap. Run as root on Ubuntu/Debian.
-# Usage: sudo APP_ROOT=/var/www/mediacbd bash deploy/install.sh
+# One-time user-level bootstrap. No root / no sudo.
+# Usage (from the repo root): bash deploy/install.sh
 set -euo pipefail
 
-APP_ROOT="${APP_ROOT:-/var/www/mediacbd}"
-APP_USER="${APP_USER:-www-data}"
-APP_GROUP="${APP_GROUP:-www-data}"
+APP_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BACKEND="$APP_ROOT/backend"
+VENV="$BACKEND/venv"
 
-if [[ "$(id -u)" -ne 0 ]]; then
-  echo "Run as root: sudo bash deploy/install.sh" >&2
+if [[ ! -d "$BACKEND" ]]; then
+  echo "Missing $BACKEND" >&2
   exit 1
 fi
 
-if [[ ! -d "$APP_ROOT/backend" || ! -d "$APP_ROOT/deploy" ]]; then
-  echo "Clone the repo to $APP_ROOT first." >&2
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "python3 is required on this account." >&2
   exit 1
 fi
 
-export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get install -y --no-install-recommends \
-  python3 python3-venv python3-pip \
-  nginx \
-  rsync \
-  curl
+mkdir -p "$BACKEND/staticfiles" "$BACKEND/run" "$BACKEND/logs"
 
-if ! command -v node >/dev/null 2>&1; then
-  echo "Node.js is required to build react/dist. Install Node 22 LTS, then re-run or use deploy/release.sh." >&2
+if [[ ! -x "$VENV/bin/python" ]]; then
+  python3 -m venv "$VENV"
 fi
 
-install -d -m 0755 /var/www/certbot
-install -d -m 0755 "$APP_ROOT/backend/staticfiles"
+"$VENV/bin/pip" install --upgrade pip
+"$VENV/bin/pip" install -r "$BACKEND/requirements.txt"
 
-if [[ ! -x "$APP_ROOT/backend/.venv/bin/python" ]]; then
-  python3 -m venv "$APP_ROOT/backend/.venv"
+if [[ ! -f "$BACKEND/.env" ]]; then
+  cp "$APP_ROOT/deploy/env.production.example" "$BACKEND/.env"
+  chmod 600 "$BACKEND/.env" || true
+  echo "Created $BACKEND/.env — set DJANGO_SECRET_KEY, DB_*, SMTP before start."
 fi
 
-"$APP_ROOT/backend/.venv/bin/pip" install --upgrade pip
-"$APP_ROOT/backend/.venv/bin/pip" install -r "$APP_ROOT/backend/requirements.txt"
-
-if [[ ! -f "$APP_ROOT/backend/.env" ]]; then
-  cp "$APP_ROOT/deploy/env.production.example" "$APP_ROOT/backend/.env"
-  echo "Created $APP_ROOT/backend/.env — set DJANGO_SECRET_KEY and SMTP before starting Gunicorn."
-fi
-
-ln -sfn "$APP_ROOT/deploy/systemd/mediacbd.service" /etc/systemd/system/mediacbd.service
-ln -sfn "$APP_ROOT/deploy/systemd/mediacbd-reminders.service" /etc/systemd/system/mediacbd-reminders.service
-ln -sfn "$APP_ROOT/deploy/systemd/mediacbd-reminders.timer" /etc/systemd/system/mediacbd-reminders.timer
-ln -sfn "$APP_ROOT/deploy/nginx/mediacbd.conf" /etc/nginx/sites-available/mediacbd
-ln -sfn /etc/nginx/sites-available/mediacbd /etc/nginx/sites-enabled/mediacbd
-rm -f /etc/nginx/sites-enabled/default
-
-chown -R "$APP_USER:$APP_GROUP" "$APP_ROOT/backend"
-# Frontend tree stays readable; www-data only needs dist after the first build.
-chmod 640 "$APP_ROOT/backend/.env" || true
-
-systemctl daemon-reload
-nginx -t
+chmod +x "$BACKEND/gunicorn-ctl.sh"
 
 echo
 echo "Next:"
-echo "  1. Edit $APP_ROOT/backend/.env"
-echo "  2. sudo bash $APP_ROOT/deploy/release.sh"
-echo "  3. sudo systemctl enable --now mediacbd.service mediacbd-reminders.timer"
-echo "  4. sudo systemctl reload nginx"
-echo "  5. sudo certbot --nginx -d mediacbd.fr -d www.mediacbd.fr"
+echo "  1. Edit $BACKEND/.env"
+echo "  2. bash $APP_ROOT/deploy/release.sh"
+echo "  3. cd $BACKEND"
+echo "     source venv/bin/activate"
+echo "     bash gunicorn-ctl.sh restart"
+echo "     curl http://127.0.0.1:8001/api/"

@@ -1,6 +1,7 @@
 [Unit]
+# Optional root unit. Shared-hosting accounts use backend/gunicorn-ctl.sh instead.
 Description=MediaCBD Django (Gunicorn)
-After=network.target
+After=network.target mysql.service mariadb.service
 Wants=network-online.target
 
 [Service]

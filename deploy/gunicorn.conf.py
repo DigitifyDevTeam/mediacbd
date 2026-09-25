@@ -3,9 +3,9 @@
 import os
 from multiprocessing import cpu_count
 
-bind = os.environ.get('GUNICORN_BIND', 'unix:/run/mediacbd/gunicorn.sock')
-# SQLite + several writers locks easily; keep this low unless you move to Postgres.
-workers = int(os.environ.get('GUNICORN_WORKERS', str(max(2, min(3, cpu_count())))))
+bind = os.environ.get('GUNICORN_BIND', '127.0.0.1:8001')
+# MySQL handles concurrent writers; 2–4 is enough on a small VPS.
+workers = int(os.environ.get('GUNICORN_WORKERS', str(max(2, min(4, cpu_count())))))
 worker_class = os.environ.get('GUNICORN_WORKER_CLASS', 'sync')
 timeout = int(os.environ.get('GUNICORN_TIMEOUT', '120'))
 graceful_timeout = 30

@@ -3,6 +3,11 @@
 from pathlib import Path
 import os
 
+try:
+    import pymysql
+except ImportError:
+    pymysql = None
+
 
 def _load_dotenv(path: Path) -> None:
     """Load KEY=VALUE lines into os.environ without overwriting existing vars."""
@@ -51,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -80,12 +86,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mediacbd.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+def _database_config() -> dict:
+    """SQLite unless DB_NAME or DB_ENGINE=mysql is set (production MySQL)."""
+    engine = os.environ.get('DB_ENGINE', '').strip().lower()
+    name = os.environ.get('DB_NAME', '').strip()
+    use_mysql = engine in ('mysql', 'django.db.backends.mysql') or bool(name)
+    if not use_mysql:
+        return {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+    if pymysql is not None:
+        pymysql.install_as_MySQLdb()
+    return {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': name,
+            'USER': os.environ.get('DB_USER', ''),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '3306'),
+            'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
     }
-}
+
+
+DATABASES = _database_config()
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -101,6 +134,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = Path(os.environ.get('DJANGO_STATIC_ROOT') or (BASE_DIR / 'staticfiles'))
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGGING = {
@@ -192,7 +233,7 @@ CURRENCY = os.environ.get('CURRENCY', '€')
 PAYMENT_METHOD = os.environ.get('PAYMENT_METHOD', 'virement bancaire')
 
 # Automatic payment reminders while status=invoiced (stopped by « C’est payé »).
-# Production: keep AUTORUN off and use deploy/systemd/mediacbd-reminders.timer.
+# Production without systemd: keep AUTORUN=1. With a timer, set it to 0.
 PAYMENT_REMINDER_AFTER_DAYS = int(os.environ.get('PAYMENT_REMINDER_AFTER_DAYS', '2'))
 PAYMENT_REMINDER_INTERVAL_DAYS = int(os.environ.get('PAYMENT_REMINDER_INTERVAL_DAYS', '2'))
 PAYMENT_REMINDER_MAX = int(os.environ.get('PAYMENT_REMINDER_MAX', '3'))
