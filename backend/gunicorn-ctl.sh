@@ -17,13 +17,31 @@ BIND_DEFAULT="127.0.0.1:8001"
 cd "$ROOT"
 export DJANGO_SETTINGS_MODULE="${DJANGO_SETTINGS_MODULE:-mediacbd.settings}"
 
-if [[ -f "$ROOT/.env" ]]; then
-  set -a
-  # Strip CRLF so a Windows-edited .env still sources on Linux.
-  # shellcheck disable=SC1090
-  source <(sed 's/\r$//' "$ROOT/.env")
-  set +a
-fi
+load_dotenv() {
+  local envf="$1" line key value
+  [[ -f "$envf" ]] || return 0
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%$'\r'}"
+    [[ -z "${line//[[:space:]]/}" || "$line" == \#* ]] && continue
+    [[ "$line" == *=* ]] || continue
+    key="${line%%=*}"
+    value="${line#*=}"
+    key="${key%"${key##*[![:space:]]}"}"
+    key="${key#"${key%%[![:space:]]*}"}"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    if [[ "$value" == \"*\" ]]; then
+      value="${value#\"}"
+      value="${value%\"}"
+    elif [[ "$value" == \'*\' ]]; then
+      value="${value#\'}"
+      value="${value%\'}"
+    fi
+    [[ -n "$key" ]] && export "$key=$value"
+  done < "$envf"
+}
+
+load_dotenv "$ROOT/.env"
 
 BIND="${GUNICORN_BIND:-$BIND_DEFAULT}"
 if [[ ! -x "$VENV/bin/gunicorn" ]]; then
