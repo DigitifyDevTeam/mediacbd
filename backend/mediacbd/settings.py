@@ -99,19 +99,25 @@ def _required_env(name: str) -> str:
 if pymysql is None:
     raise ValueError('PyMySQL is required. pip install -r backend/requirements.txt')
 
+_db_options = {
+    'charset': 'utf8mb4',
+    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+}
+_unix_socket = os.environ.get('DB_UNIX_SOCKET', '').strip()
+if _unix_socket:
+    _db_options['unix_socket'] = _unix_socket
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': _required_env('DB_NAME'),
         'USER': _required_env('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        # localhost / 127.0.0.1 only. The public hostname is refused (MySQL binds locally).
         'HOST': os.environ.get('DB_HOST', 'localhost').strip() or 'localhost',
         'PORT': os.environ.get('DB_PORT', '3306').strip() or '3306',
         'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+        'OPTIONS': _db_options,
     }
 }
 
