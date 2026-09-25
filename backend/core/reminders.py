@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import logging
-import os
-import sys
-import threading
-import time
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -18,8 +14,6 @@ from .models import Lead
 from .payments import PaymentActionError, ensure_invoice_ref
 
 logger = logging.getLogger(__name__)
-
-_loop_started = False
 
 
 def stamp_invoiced(lead: Lead) -> None:
@@ -104,37 +98,3 @@ def send_due_payment_reminders(*, force: bool = False) -> list[dict[str, str]]:
                 continue
             sent.append({'lead_id': str(lead.pk), 'brand': lead.brand_name, **result})
     return sent
-
-
-def _should_start_autorun() -> bool:
-    if not settings.PAYMENT_REMINDER_AUTORUN:
-        return False
-    if any(cmd in sys.argv for cmd in ('test', 'migrate', 'makemigrations', 'collectstatic', 'shell', 'gunicorn')):
-        return False
-    if settings.DEBUG and os.environ.get('RUN_MAIN') != 'true':
-        return False
-    return True
-
-
-def start_reminder_loop() -> None:
-    """Hourly check while Django is running. « C’est payé » stops further mails."""
-    global _loop_started
-    if _loop_started or not _should_start_autorun():
-        return
-    _loop_started = True
-    poll = max(60, int(settings.PAYMENT_REMINDER_POLL_SECONDS))
-
-    def _run() -> None:
-        time.sleep(min(60, poll))
-        while True:
-            try:
-                sent = send_due_payment_reminders()
-                if sent:
-                    logger.info('Payment reminders sent: %s', len(sent))
-            except (OSError, RuntimeError):
-                logger.exception('Payment reminder loop failed')
-            time.sleep(poll)
-
-    thread = threading.Thread(target=_run, name='payment-reminders', daemon=True)
-    thread.start()
-    logger.info('Payment reminder loop started (every %ss)', poll)

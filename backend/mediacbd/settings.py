@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import os
+import sys
 
 try:
     import pymysql
@@ -116,7 +117,12 @@ DATABASES = {
         # localhost / 127.0.0.1 only. The public hostname is refused (MySQL binds locally).
         'HOST': os.environ.get('DB_HOST', 'localhost').strip() or 'localhost',
         'PORT': os.environ.get('DB_PORT', '3306').strip() or '3306',
-        'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
+        # manage.py (createsuperuser, etc.) must not reuse a socket that died while typing.
+        'CONN_MAX_AGE': (
+            0
+            if any(a.endswith('manage.py') for a in sys.argv)
+            else int(os.environ.get('DB_CONN_MAX_AGE', '60'))
+        ),
         'OPTIONS': _db_options,
     }
 }
@@ -233,11 +239,8 @@ PRICE_ARTICLE_TTC = os.environ.get('PRICE_ARTICLE_TTC', '80')
 CURRENCY = os.environ.get('CURRENCY', '€')
 PAYMENT_METHOD = os.environ.get('PAYMENT_METHOD', 'virement bancaire')
 
-# Automatic payment reminders while status=invoiced (stopped by « C’est payé »).
-# Production without systemd: keep AUTORUN=1. With a timer, set it to 0.
+# Payment reminders while status=invoiced (stopped by « C’est payé »).
+# No in-process loop — run: python manage.py send_payment_reminders
 PAYMENT_REMINDER_AFTER_DAYS = int(os.environ.get('PAYMENT_REMINDER_AFTER_DAYS', '2'))
 PAYMENT_REMINDER_INTERVAL_DAYS = int(os.environ.get('PAYMENT_REMINDER_INTERVAL_DAYS', '2'))
 PAYMENT_REMINDER_MAX = int(os.environ.get('PAYMENT_REMINDER_MAX', '3'))
-_autorun_default = '1' if DEBUG else '0'
-PAYMENT_REMINDER_AUTORUN = os.environ.get('PAYMENT_REMINDER_AUTORUN', _autorun_default) == '1'
-PAYMENT_REMINDER_POLL_SECONDS = int(os.environ.get('PAYMENT_REMINDER_POLL_SECONDS', '3600'))
