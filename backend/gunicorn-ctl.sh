@@ -2,7 +2,7 @@
 # User-level Gunicorn control. Run from backend/:
 #   source venv/bin/activate
 #   bash gunicorn-ctl.sh restart
-#   curl http://127.0.0.1:8001/api/
+#   curl --noproxy '*' http://127.0.0.1:8002/api/
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -12,7 +12,7 @@ LOGDIR="$ROOT/logs"
 ACCESS_LOG="$LOGDIR/access.log"
 ERROR_LOG="$LOGDIR/error.log"
 CONF="$(cd "$ROOT/.." && pwd)/deploy/gunicorn.conf.py"
-BIND_DEFAULT="127.0.0.1:8001"
+BIND_DEFAULT="127.0.0.1:8002"
 
 cd "$ROOT"
 export DJANGO_SETTINGS_MODULE="${DJANGO_SETTINGS_MODULE:-mediacbd.settings}"
@@ -67,6 +67,24 @@ pid_of() {
   tr -d '[:space:]' < "$PIDFILE"
 }
 
+bind_in_use() {
+  local host port
+  host="${BIND%:*}"
+  port="${BIND##*:}"
+  python3 - "$host" "$port" <<'PY'
+import socket, sys
+host, port = sys.argv[1], int(sys.argv[2])
+s = socket.socket()
+s.settimeout(0.4)
+try:
+    s.connect((host, port))
+except OSError:
+    raise SystemExit(0)
+s.close()
+raise SystemExit(1)
+PY
+}
+
 start() {
   if [[ ! -x "$GUNICORN" ]]; then
     echo "Missing $GUNICORN — create it with: python3 -m venv venv && venv/bin/pip install -r requirements.txt" >&2
@@ -75,6 +93,11 @@ start() {
   if is_running; then
     echo "Gunicorn already running (pid $(pid_of)) on $BIND"
     return 0
+  fi
+  if ! bind_in_use; then
+    echo "Port $BIND is already taken by another app (not MediaCBD)." >&2
+    echo "Set GUNICORN_BIND=127.0.0.1:8002 in .env and retry." >&2
+    exit 1
   fi
   rm -f "$PIDFILE"
   mkdir -p "$ROOT/run" "$LOGDIR"

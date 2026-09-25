@@ -3,7 +3,7 @@
 import os
 from multiprocessing import cpu_count
 
-bind = os.environ.get('GUNICORN_BIND', '127.0.0.1:8001')
+bind = os.environ.get('GUNICORN_BIND', '127.0.0.1:8002')
 # MySQL handles concurrent writers; 2–4 is enough on a small VPS.
 workers = int(os.environ.get('GUNICORN_WORKERS', str(max(2, min(4, cpu_count())))))
 worker_class = os.environ.get('GUNICORN_WORKER_CLASS', 'sync')
