@@ -45,6 +45,6 @@ fi
 
 echo "==> Release done"
 if command -v curl >/dev/null 2>&1; then
-  curl -fsS "http://127.0.0.1:8001/api/" || true
+  curl -fsS --noproxy '*' "http://127.0.0.1:8001/api/" || true
   echo
 fi
